@@ -1,7 +1,8 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
+  "name": "secure-vault",
+  "version": "1.0.0",
   "private": true,
+  "description": "SecureVault uses ECIES for secure and efficient file encryption and decryption.",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
