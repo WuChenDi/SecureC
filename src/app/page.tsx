@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 interface FileInfo {
   name: string
@@ -201,7 +202,12 @@ export default function Home() {
                 onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
               />
               <div
-                className={`relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300 ${fileInfo ? 'border-blue-400 dark:border-blue-500 bg-blue-50/30 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50/50 dark:hover:bg-gray-800/30'}`}
+                className={cn(
+                  'relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer',
+                  fileInfo
+                    ? 'border-blue-400 dark:border-blue-500 bg-blue-50/30 dark:bg-blue-900/20'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-gray-50/50 dark:hover:bg-gray-800/30'
+                )}
                 onDragOver={(e) => e.preventDefault()}
                 onDragLeave={(e) => e.preventDefault()}
                 onDrop={handleDrop}
@@ -258,11 +264,12 @@ export default function Home() {
               size="lg"
               disabled={!selectedFile || !key || isProcessing}
               onClick={processFile}
-              className={
+              className={cn(
+                'w-full sm:flex-1 text-white transition-all duration-300 shadow-lg disabled:shadow-none text-sm',
                 selectedFile?.name.endsWith('.encrypted')
-                  ? 'w-full sm:flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white transition-all duration-300 shadow-lg shadow-green-500/20 hover:shadow-green-500/30 disabled:shadow-none text-sm sm:text-base'
-                  : 'w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 disabled:shadow-none text-sm'
-              }
+                  ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-green-500/20 hover:shadow-green-500/30 sm:text-base'
+                  : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-blue-500/20 hover:shadow-blue-500/30'
+              )}
             >
               {selectedFile?.name.endsWith('.encrypted') ? (
                 <>
