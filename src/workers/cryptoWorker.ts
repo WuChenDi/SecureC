@@ -1,31 +1,21 @@
 import { encrypt } from 'eciesjs'
 
 self.onmessage = async (e: MessageEvent) => {
-  const { mode, chunks, filename, password, publicKey } = e.data
+  const { mode, chunks, filename, key } = e.data
 
   try {
     if (mode !== 'encrypt') {
       throw new Error('Web Worker only supports encryption operations')
     }
 
-    if (!publicKey) {
-      throw new Error('ECIES public key not provided')
+    if (!key) {
+      throw new Error('Public key not provided')
     }
-
-    if (!password) {
-      throw new Error('Please provide encryption password')
-    }
-
-    // Calculate SHA-256 hash of the password
-    const encoder = new TextEncoder()
-    const passwordData = encoder.encode(password)
-    const passwordHash = await crypto.subtle.digest('SHA-256', passwordData)
-    const passwordHashArray = new Uint8Array(passwordHash)
 
     // Encrypt each chunk
     const encryptedChunks: Uint8Array[] = []
     for (const chunk of chunks) {
-      const encrypted = encrypt(publicKey, Buffer.from(chunk))
+      const encrypted = encrypt(key, Buffer.from(chunk))
       encryptedChunks.push(encrypted)
     }
 
@@ -36,7 +26,7 @@ self.onmessage = async (e: MessageEvent) => {
       throw new Error('Filename too long, please rename and try again')
     }
 
-    let totalLength = 1 + nameLength + 32 // nameLength byte + filename + 32 bytes for password hash
+    let totalLength = 1 + nameLength // nameLength byte + filename
     encryptedChunks.forEach(chunk => totalLength += 4 + chunk.length) // 4 bytes for chunk length
 
     const resultArray = new Uint8Array(totalLength)
@@ -46,8 +36,6 @@ self.onmessage = async (e: MessageEvent) => {
     offset += 1
     resultArray.set(nameBuffer, offset)
     offset += nameLength
-    resultArray.set(passwordHashArray, offset)
-    offset += 32
 
     for (const chunk of encryptedChunks) {
       const chunkLength = chunk.length

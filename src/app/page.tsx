@@ -1,6 +1,6 @@
 'use client'
 
-import { Upload, Lock, Unlock, Info, Sparkles } from 'lucide-react'
+import { Upload, Lock, Unlock, Info } from 'lucide-react'
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Toaster, toast } from 'sonner'
 
@@ -18,9 +18,9 @@ interface FileInfo {
 }
 
 export default function Home() {
+  const [key, setKey] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null)
-  const [password, setPassword] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const workerRef = useRef<Worker | null>(null)
@@ -62,16 +62,42 @@ export default function Home() {
     }
   }, [handleFileSelect])
 
-  const processFile = async (mode: 'encrypt' | 'decrypt') => {
+  const readFileChunk = (file: File, offset: number, chunkSize: number): Promise<ArrayBuffer> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      const blob = file.slice(offset, offset + chunkSize)
+      reader.onload = () => resolve(reader.result as ArrayBuffer)
+      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.readAsArrayBuffer(blob)
+    })
+  }
+
+  const downloadFile = (data: ArrayBuffer, filename: string) => {
+    const blob = new Blob([data])
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.style.display = 'none'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const processFile = async () => {
     if (!selectedFile) {
       toast.error('Please select a file first')
       return
     }
 
-    if (!password) {
-      toast.error('Please provide a password')
+    if (!key) {
+      toast.error('Please enter the key.')
       return
     }
+
+    const isEncryptedFile = selectedFile.name.endsWith('.encrypted')
+    const mode = isEncryptedFile ? 'decrypt' : 'encrypt'
 
     setIsProcessing(true)
 
@@ -95,9 +121,6 @@ export default function Home() {
         const worker = workerRef.current
         if (!worker) throw new Error('Web Worker not initialized')
 
-        const publicKey = process.env.NEXT_PUBLIC_ECIES_PUBLIC_KEY
-        if (!publicKey) throw new Error('ECIES public key not configured')
-
         result = await new Promise<{ data: ArrayBuffer; filename: string }>((resolve, reject) => {
           worker.onmessage = (e: MessageEvent) => {
             const { data, error } = e.data
@@ -112,8 +135,7 @@ export default function Home() {
             mode,
             chunks,
             filename: selectedFile.name,
-            password,
-            publicKey
+            key
           })
         })
       } else {
@@ -121,7 +143,7 @@ export default function Home() {
         const formData = new FormData()
         formData.append('file', new Blob(chunks))
         formData.append('filename', selectedFile.name)
-        formData.append('password', password)
+        formData.append('key', key)
 
         const response = await fetch('/api/decrypt', {
           method: 'POST',
@@ -147,34 +169,13 @@ export default function Home() {
       toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setIsProcessing(false)
+      setKey('')
     }
   }
 
-  const readFileChunk = (file: File, offset: number, chunkSize: number): Promise<ArrayBuffer> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      const blob = file.slice(offset, offset + chunkSize)
-      reader.onload = () => resolve(reader.result as ArrayBuffer)
-      reader.onerror = () => reject(new Error('Failed to read file'))
-      reader.readAsArrayBuffer(blob)
-    })
-  }
-
-  const downloadFile = (data: ArrayBuffer, filename: string) => {
-    const blob = new Blob([data])
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    a.style.display = 'none'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-3 sm:p-4 md:p-6">
-      <Card className="w-full max-w-xl mx-auto backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/30 dark:border-gray-700/30 shadow-2xl shadow-blue-500/20 p-4 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-blue-500/30 rounded-2xl">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6">
+      <Card className="w-full max-w-xl mx-auto border-none bg-card/20 backdrop-blur-lg p-4 sm:p-6 md:p-8 transition-all duration-300 rounded-2xl">
         <CardHeader className="text-center space-y-2 sm:space-y-3">
           <GradientText className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent flex items-center justify-center gap-2 sm:gap-3">
             SecureVault
@@ -183,7 +184,7 @@ export default function Home() {
             text="ECIES File Encryption Tool"
             disabled={false}
             speed={3}
-            className='text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 font-medium'
+            className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 font-medium"
           />
         </CardHeader>
 
@@ -234,17 +235,20 @@ export default function Home() {
             )}
           </div>
 
-          <div className="space-y-3 sm:space-y-4">
-            <Label htmlFor="password" className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
-              Password
+          <div className="space-y-2">
+            <Label className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
+              Key
             </Label>
             <Input
-              type="password"
-              id="password"
-              placeholder="Enter encryption/decryption password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="text-sm sm:text-base transition-all duration-300 focus:ring-2 focus:ring-blue-500/20 bg-gray-50/50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700"
+              type="text"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder={
+                selectedFile?.name.endsWith('.encrypted')
+                  ? 'Enter private key for decryption'
+                  : 'Enter public key for encryption'
+              }
+              className="font-mono text-sm"
             />
           </div>
 
@@ -252,22 +256,25 @@ export default function Home() {
             <Button
               variant="default"
               size="lg"
-              disabled={!selectedFile || !password}
-              onClick={() => processFile('encrypt')}
-              className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 disabled:shadow-none text-sm sm:text-base"
+              disabled={!selectedFile || !key || isProcessing}
+              onClick={processFile}
+              className={
+                selectedFile?.name.endsWith('.encrypted')
+                  ? 'w-full sm:flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white transition-all duration-300 shadow-lg shadow-green-500/20 hover:shadow-green-500/30 disabled:shadow-none text-sm sm:text-base'
+                  : 'w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 disabled:shadow-none text-sm'
+              }
             >
-              <Lock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Encrypt
-            </Button>
-            <Button
-              variant="secondary"
-              size="lg"
-              disabled={!selectedFile || !password}
-              onClick={() => processFile('decrypt')}
-              className="w-full sm:flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white transition-all duration-300 shadow-lg shadow-green-500/20 hover:shadow-green-500/30 disabled:shadow-none text-sm sm:text-base"
-            >
-              <Unlock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Decrypt
+              {selectedFile?.name.endsWith('.encrypted') ? (
+                <>
+                  <Unlock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  Decrypt
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  Encrypt
+                </>
+              )}
             </Button>
           </div>
 

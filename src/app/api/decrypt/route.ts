@@ -1,36 +1,16 @@
 import { decrypt } from 'eciesjs'
 import { NextRequest, NextResponse } from 'next/server'
 
-// Helper function to compare Uint8Arrays
-function arraysEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false
-  }
-  return true
-}
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
     const file = formData.get('file') as Blob
+    const key = formData.get('key') as string
     const filename = formData.get('filename') as string
-    const password = formData.get('password') as string
 
-    if (!password) {
-      return NextResponse.json({ error: 'Please provide decryption password' }, { status: 400 })
+    if (!key) {
+      return NextResponse.json({ error: 'Private key not provided' }, { status: 400 })
     }
-
-    const privateKey = process.env.ECIES_PRIVATE_KEY
-    // console.log('🚀 ~ POST ~ privateKey:', privateKey)
-    if (!privateKey) {
-      return NextResponse.json({ error: 'ECIES private key not configured' }, { status: 500 })
-    }
-
-    // Calculate SHA-256 hash of provided password
-    const encoder = new TextEncoder()
-    const passwordData = encoder.encode(password)
-    const providedPasswordHash = new Uint8Array(await crypto.subtle.digest('SHA-256', passwordData))
 
     const data = new Uint8Array(await file.arrayBuffer())
     let offset = 0
@@ -44,15 +24,6 @@ export async function POST(req: NextRequest) {
     const originalName = new TextDecoder().decode(data.slice(offset, offset + nameLength))
     offset += nameLength
 
-    // Read stored password hash
-    const storedPasswordHash = data.slice(offset, offset + 32)
-    offset += 32
-
-    // Verify password hash
-    if (!arraysEqual(providedPasswordHash, storedPasswordHash)) {
-      return NextResponse.json({ error: 'Incorrect password' }, { status: 401 })
-    }
-
     const decryptedChunks: Uint8Array[] = []
     let totalDecryptedLength = 0
 
@@ -63,7 +34,7 @@ export async function POST(req: NextRequest) {
       const chunk = data.slice(offset, offset + chunkLength)
       offset += chunkLength
 
-      const decrypted = decrypt(privateKey, chunk)
+      const decrypted = decrypt(key, chunk)
       decryptedChunks.push(decrypted)
       totalDecryptedLength += decrypted.length
     }
