@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>SecureVault - AES File Encryptor</title>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#667eea',
+            secondary: '#764ba2'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .file-input-button {
+      transition: all 0.3s ease;
+    }
+
+    .file-input-button:hover {
+      border-color: #667eea;
+      background-color: #f0f2ff;
+      color: #667eea;
+    }
+
+    .file-selected {
+      border-color: #10b981;
+      background-color: #f0fdf4;
+      color: #10b981;
+    }
+
+    .progress-bar {
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+
+<body class="gradient-bg min-h-screen flex items-center justify-center p-5">
+  <div class="bg-white rounded-2xl shadow-2xl p-10 max-w-lg w-full">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">🔐 SecureVault</h1>
+      <p class="text-gray-600 text-sm">AES File Encryption Tool</p>
+    </div>
+
+    <!-- File Upload Section -->
+    <div class="mb-6">
+      <label for="fileInput" class="block text-sm font-medium mb-2">
+        Select File
+      </label>
+      <div class="relative">
+        <input type="file" id="fileInput" class="hidden">
+        <label for="fileInput"
+          class="file-input-button flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+          <svg class="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <span class="text-sm text-gray-500 font-medium" id="fileInputText">
+            Click to select file or drag and drop
+          </span>
+        </label>
+      </div>
+      <div id="fileInfo" class="hidden mt-3 p-3 bg-gray-50 rounded-lg text-xs text-gray-600"></div>
+    </div>
+
+    <!-- Password Section -->
+    <div class="mb-6">
+      <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+        Password
+      </label>
+      <input type="password" id="password" placeholder="Enter encryption password"
+        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
+        required>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-3 mb-6">
+      <button type="button" id="encryptBtn" disabled
+        class="flex-1 bg-primary text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+          </path>
+        </svg>
+        Encrypt
+      </button>
+      <button type="button" id="decryptBtn" disabled
+        class="flex-1 bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+        </svg>
+        Decrypt
+      </button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="progress" class="hidden mb-6">
+      <div class="text-center text-primary font-medium mb-2">Processing...</div>
+      <div class="progress-bar w-full h-2 bg-gray-200 rounded-full">
+        <div id="progressFill" class="progress-fill h-full bg-primary rounded-full" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="error" class="hidden mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm"></div>
+    <div id="success" class="hidden mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm">
+    </div>
+
+    <!-- Info Panel -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+      <div class="flex items-start">
+        <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div class="text-sm text-blue-800">
+          <div class="font-medium mb-1">Features:</div>
+          <ul class="list-disc list-inside space-y-1 text-xs">
+            <li>Supports any file type encryption/decryption</li>
+            <li>Uses AES-256-GCM algorithm for security</li>
+            <li>Encrypted files download automatically</li>
+            <li>Keep your password safe - lost passwords cannot be recovered</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class SecureVault {
+      constructor() {
+        this.selectedFile = null;
+        this.initEventListeners();
+      }
+
+      initEventListeners() {
+        const fileInput = document.getElementById('fileInput');
+        const fileInputButton = document.querySelector('label[for="fileInput"]');
+        const password = document.getElementById('password');
+        const encryptBtn = document.getElementById('encryptBtn');
+        const decryptBtn = document.getElementById('decryptBtn');
+
+        fileInput.addEventListener('change', this.handleFileSelect.bind(this));
+        password.addEventListener('input', this.validateForm.bind(this));
+        encryptBtn.addEventListener('click', () => this.processFile('encrypt'));
+        decryptBtn.addEventListener('click', () => this.processFile('decrypt'));
+
+        // Drag and drop functionality
+        fileInputButton.addEventListener('dragover', this.handleDragOver.bind(this));
+        fileInputButton.addEventListener('dragleave', this.handleDragLeave.bind(this));
+        fileInputButton.addEventListener('drop', this.handleDrop.bind(this));
+      }
+
+      handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('border-primary', 'bg-blue-50');
+      }
+
+      handleDragLeave(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('border-primary', 'bg-blue-50');
+      }
+
+      handleDrop(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('fileInput');
+        const files = e.dataTransfer.files;
+
+        if (files.length > 0) {
+          fileInput.files = files;
+          this.handleFileSelect({ target: fileInput });
+        }
+
+        e.currentTarget.classList.remove('border-primary', 'bg-blue-50');
+      }
+
+      handleFileSelect(event) {
+        const file = event.target.files[0];
+        const fileInputText = document.getElementById('fileInputText');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileInputButton = document.querySelector('label[for="fileInput"]');
+
+        if (file) {
+          this.selectedFile = file;
+          fileInputText.textContent = `Selected: ${file.name}`;
+          fileInputButton.classList.add('file-selected');
+
+          fileInfo.innerHTML = `
+            <div class="grid grid-cols-2 gap-2">
+                <div><span class="font-medium">Name:</span> ${file.name}</div>
+                <div><span class="font-medium">Size:</span> ${this.formatFileSize(file.size)}</div>
+                <div class="col-span-2"><span class="font-medium">Type:</span> ${file.type || 'Unknown'}</div>
+            </div>
+        `;
+          fileInfo.classList.remove('hidden');
+        } else {
+          this.selectedFile = null;
+          fileInputText.textContent = 'Click to select file or drag and drop';
+          fileInputButton.classList.remove('file-selected');
+          fileInfo.classList.add('hidden');
+        }
+
+        this.validateForm();
+      }
+
+      validateForm() {
+        const password = document.getElementById('password').value;
+        const encryptBtn = document.getElementById('encryptBtn');
+        const decryptBtn = document.getElementById('decryptBtn');
+
+        const isValid = this.selectedFile && password.length > 0;
+        encryptBtn.disabled = !isValid;
+        decryptBtn.disabled = !isValid;
+      }
+
+      async processFile(mode) {
+        const password = document.getElementById('password').value;
+
+        if (!this.selectedFile || !password) {
+          this.showError('Please select a file and enter a password');
+          return;
+        }
+
+        this.showProgress();
+        this.hideMessages();
+
+        try {
+          const result = mode === 'encrypt'
+            ? await this.encryptFile(this.selectedFile, password)
+            : await this.decryptFile(this.selectedFile, password);
+
+          this.downloadFile(result.data, result.filename);
+          this.showSuccess(`File ${mode}ed successfully!`);
+        } catch (error) {
+          this.showError(error.message);
+        } finally {
+          this.hideProgress();
+        }
+      }
+
+      async encryptFile(file, password) {
+        // Generate random salt and IV
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+
+        // Derive key from password
+        const key = await this.deriveKey(password, salt);
+
+        // Read file content
+        const fileData = await this.readFileAsArrayBuffer(file);
+
+        // Encrypt file data
+        const encryptedData = await crypto.subtle.encrypt(
+          { name: 'AES-GCM', iv },
+          key,
+          fileData
+        );
+
+        // Create file header (contains salt, IV, and original filename)
+        const originalName = new TextEncoder().encode(file.name);
+        const nameLength = originalName.length;
+
+        if (nameLength > 255) {
+          throw new Error('Filename too long, please rename and try again');
+        }
+
+        // Combine all data
+        const result = new Uint8Array(
+          salt.length + iv.length + 1 + nameLength + encryptedData.byteLength
+        );
+
+        let offset = 0;
+        result.set(salt, offset);
+        offset += salt.length;
+        result.set(iv, offset);
+        offset += iv.length;
+        result.set([nameLength], offset);
+        offset += 1;
+        result.set(originalName, offset);
+        offset += originalName.length;
+        result.set(new Uint8Array(encryptedData), offset);
+
+        return {
+          data: result,
+          filename: file.name + '.encrypted'
+        };
+      }
+
+      async decryptFile(file, password) {
+        const fileData = await this.readFileAsArrayBuffer(file);
+        const data = new Uint8Array(fileData);
+
+        if (data.length < 29) {
+          throw new Error('Invalid file format or corrupted file');
+        }
+
+        try {
+          // Extract salt, IV, and original filename
+          let offset = 0;
+          const salt = data.slice(offset, offset + 16);
+          offset += 16;
+          const iv = data.slice(offset, offset + 12);
+          offset += 12;
+          const nameLength = data[offset];
+          offset += 1;
+
+          if (nameLength > 255 || offset + nameLength > data.length) {
+            throw new Error('Invalid file format');
+          }
+
+          const originalName = new TextDecoder().decode(
+            data.slice(offset, offset + nameLength)
+          );
+          offset += nameLength;
+          const encryptedData = data.slice(offset);
+
+          // Derive key from password
+          const key = await this.deriveKey(password, salt);
+
+          // Decrypt data
+          const decryptedData = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv },
+            key,
+            encryptedData
+          );
+
+          return {
+            data: decryptedData,
+            filename: originalName
+          };
+        } catch (error) {
+          if (error.name === 'OperationError') {
+            throw new Error('Decryption failed, please check your password');
+          }
+          throw new Error('Error during decryption: ' + error.message);
+        }
+      }
+
+      async deriveKey(password, salt) {
+        const encoder = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+          'raw',
+          encoder.encode(password),
+          { name: 'PBKDF2' },
+          false,
+          ['deriveBits', 'deriveKey']
+        );
+
+        return crypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            salt,
+            iterations: 100000,
+            hash: 'SHA-256'
+          },
+          keyMaterial,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt']
+        );
+      }
+
+      readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error('File reading failed'));
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      downloadFile(data, filename) {
+        // Ensure data is in correct format
+        let blobData;
+        if (data instanceof ArrayBuffer) {
+          blobData = data;
+        } else if (data instanceof Uint8Array) {
+          blobData = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+        } else {
+          blobData = data;
+        }
+
+        // Set correct MIME type based on file extension
+        const mimeType = this.getMimeType(filename);
+        const blob = new Blob([blobData], { type: mimeType });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      getMimeType(filename) {
+        const ext = filename.toLowerCase().split('.').pop();
+        const mimeTypes = {
+          'txt': 'text/plain',
+          'pdf': 'application/pdf',
+          'doc': 'application/msword',
+          'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'xls': 'application/vnd.ms-excel',
+          'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'ppt': 'application/vnd.ms-powerpoint',
+          'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'jpg': 'image/jpeg',
+          'jpeg': 'image/jpeg',
+          'png': 'image/png',
+          'gif': 'image/gif',
+          'bmp': 'image/bmp',
+          'webp': 'image/webp',
+          'svg': 'image/svg+xml',
+          'mp4': 'video/mp4',
+          'avi': 'video/avi',
+          'mov': 'video/quicktime',
+          'wmv': 'video/x-ms-wmv',
+          'mp3': 'audio/mpeg',
+          'wav': 'audio/wav',
+          'flac': 'audio/flac',
+          'zip': 'application/zip',
+          'rar': 'application/vnd.rar',
+          '7z': 'application/x-7z-compressed',
+          'json': 'application/json',
+          'xml': 'application/xml',
+          'html': 'text/html',
+          'css': 'text/css',
+          'js': 'application/javascript'
+        };
+        return mimeTypes[ext] || 'application/octet-stream';
+      }
+
+      formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+
+      showProgress() {
+        document.getElementById('progress').classList.remove('hidden');
+        document.getElementById('progressFill').style.width = '100%';
+      }
+
+      hideProgress() {
+        document.getElementById('progress').classList.add('hidden');
+        document.getElementById('progressFill').style.width = '0%';
+      }
+
+      showError(message) {
+        const errorDiv = document.getElementById('error');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+      }
+
+      showSuccess(message) {
+        const successDiv = document.getElementById('success');
+        successDiv.textContent = message;
+        successDiv.classList.remove('hidden');
+      }
+
+      hideMessages() {
+        document.getElementById('error').classList.add('hidden');
+        document.getElementById('success').classList.add('hidden');
+      }
+    }
+
+    // Initialize application
+    document.addEventListener('DOMContentLoaded', () => {
+      new SecureVault();
+    });
+  </script>
+</body>
+
+</html>
