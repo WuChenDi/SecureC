@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SecureVault
 
-## Getting Started
+## Overview
 
-First, run the development server:
+SecureVault is a Next.js-based client-side file encryption/decryption tool designed to provide users with a secure and convenient file encryption service. It utilizes the `eciesjs` library to implement asymmetric encryption (based on the secp256k1 curve's ECIES), supports chunked processing for large files, and ensures efficient and secure operations through Web Workers and server-side APIs.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Support for Any File Type**: Capable of encrypting and decrypting any file type.
+- **Asymmetric Encryption**: Uses ECIES (Elliptic Curve Integrated Encryption Scheme) for encryption, with public key encryption and private key decryption.
+- **Password Protection**: Requires a user-provided password for encryption and decryption, with the password's SHA-256 hash stored in the encrypted file for verification.
+- **Large File Chunking**: Supports splitting large files into chunks (default 5MB) to optimize memory usage and performance.
+- **Web Worker**: Encryption operations run in a Web Worker to avoid blocking the main thread, ensuring a smooth UI.
+- **Server-Side Decryption**: Decryption is handled via a secure Next.js API route, protecting the private key from client-side exposure.
+- **Automatic Download**: Encrypted/decrypted files are automatically downloaded to the user's device.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Instructions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Encrypting Files
 
-## Learn More
+1. **Select a File**:
+   - Click the file upload area or drag and drop a file into the designated area.
+   - Supports any file type, with file information (name, size, type) displayed on the interface.
+2. **Enter Password**:
+   - Input an encryption password in the password field (required).
+3. **Click Encrypt**:
+   - Click the "Encrypt" button to process the file in chunks and encrypt it using the ECIES public key.
+   - The encrypted file (with a `.encrypted` suffix) is automatically downloaded.
 
-To learn more about Next.js, take a look at the following resources:
+### Decrypting Files
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Select Encrypted File**:
+   - Choose a previously encrypted file (with a `.encrypted` suffix).
+2. **Enter Password**:
+   - Input the password used during encryption (required).
+3. **Click Decrypt**:
+   - Click the "Decrypt" button to decrypt the file via the server-side API.
+   - If the password is correct, the decrypted original file is automatically downloaded; otherwise, a "Password incorrect" error is displayed.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Security Considerations
 
-## Deploy on Vercel
+- **Private Key Protection**: The `ECIES_PRIVATE_KEY` is stored server-side (in `.env.local`) and used only in the decryption API, preventing exposure to the client.
+- **Password Verification**: Uses SHA-256 hash to verify passwords, which is simple but vulnerable to brute-force attacks. Consider upgrading to a stronger encryption scheme (e.g., combining AES with ECIES).
+- **File Chunking**: Chunked processing prevents large files from consuming excessive memory, suitable for handling large files.
+- **HTTPS**: Ensure HTTPS is used in production to secure API communications.
+- **Key Management**: Regularly rotate ECIES key pairs and use a secure key management system.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📜 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](./LICENSE) License &copy; 2025-PRESENT [wudi](https://github.com/WuChenDi)
