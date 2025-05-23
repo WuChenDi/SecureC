@@ -34,7 +34,48 @@ const BackgroundEffects = () => (
 )
 
 // --- SEO Metadata ---
+
 export const metadata: Metadata = {
+  title: 'SecureVault',
+  icons: 'https://notes-wudi.pages.dev/images/logo.png',
+  description: 'SecureVault uses ECIES for secure and efficient file encryption and decryption.',
+  keywords: [
+    'SecureVault',
+    'File encryption',
+    'File decryption',
+    'ECIES',
+    'Asymmetric encryption',
+    'Large file encryption',
+    'Password protection',
+    'Blockchain Security'
+  ],
+  referrer: 'no-referrer-when-downgrade',
+  authors: [{ name: 'wudi' }],
+  robots: { index: true, follow: true },
+  metadataBase: new URL('https://secure-vault.pages.dev/'),
+  alternates: {
+    canonical: '/'
+  },
+  openGraph: {
+    title: 'SecureVault',
+    description: 'SecureVault uses ECIES for secure and efficient file encryption and decryption.',
+    url: '/',
+    siteName: 'SecureVault',
+    images: [
+      {
+        url: 'https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png'
+      }
+    ],
+    locale: 'en_US',
+    type: 'website'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SecureVault',
+    description: 'SecureVault uses ECIES for secure and efficient file encryption and decryption.',
+    images: ['https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png'],
+    creator: '@wuchendi96'
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
