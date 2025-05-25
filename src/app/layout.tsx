@@ -38,16 +38,17 @@ const BackgroundEffects = () => (
 export const metadata: Metadata = {
   title: 'SecureVault',
   icons: 'https://notes-wudi.pages.dev/images/logo.png',
-  description: 'SecureVault uses ECIES for secure and efficient file encryption and decryption.',
+  description: 'SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
   keywords: [
     'SecureVault',
     'File encryption',
+    'Text encryption',
     'File decryption',
-    'ECIES',
-    'Asymmetric encryption',
-    'Large file encryption',
-    'Password protection',
-    'Blockchain Security'
+    'Text decryption',
+    'AES-GCM',
+    'Argon2id',
+    'Client-side encryption',
+    'Password protection'
   ],
   referrer: 'no-referrer-when-downgrade',
   authors: [{ name: 'wudi' }],
@@ -58,7 +59,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'SecureVault',
-    description: 'SecureVault uses ECIES for secure and efficient file encryption and decryption.',
+    description: 'SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
     url: '/',
     siteName: 'SecureVault',
     images: [
@@ -72,7 +73,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'SecureVault',
-    description: 'SecureVault uses ECIES for secure and efficient file encryption and decryption.',
+    description: 'SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
     images: ['https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png'],
     creator: '@wuchendi96'
   }

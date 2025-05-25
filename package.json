@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "SecureVault uses ECIES for secure and efficient file encryption and decryption.",
+  "description": "SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
