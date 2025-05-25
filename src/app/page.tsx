@@ -14,6 +14,7 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { cn, generateTimestamp, getFilenameWithoutExtension } from '@/lib/utils'
@@ -357,8 +358,7 @@ export default function PasswordPage() {
                   <Label className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
                     Password
                   </Label>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter password"
@@ -476,8 +476,7 @@ export default function PasswordPage() {
                   <Label className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
                     Password
                   </Label>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter password"
