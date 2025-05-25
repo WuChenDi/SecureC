@@ -404,7 +404,7 @@ export default function PasswordPage() {
                       value={textInput}
                       onChange={(e) => setTextInput(e.target.value)}
                       placeholder="Enter the message to be encrypted"
-                      className="min-h-[100px] font-mono text-sm"
+                      className="min-h-[100px] max-h-[300px] font-mono text-sm"
                     />
                   </div>
                 )}
@@ -522,7 +522,7 @@ export default function PasswordPage() {
                       value={textInput}
                       onChange={(e) => setTextInput(e.target.value)}
                       placeholder="Enter the message to be decrypted"
-                      className="min-h-[100px] font-mono text-sm"
+                      className="min-h-[100px] max-h-[300px] font-mono text-sm"
                     />
                   </div>
                 )}
@@ -619,7 +619,7 @@ export default function PasswordPage() {
                 id="content"
                 value={encryptedText || decryptedText}
                 readOnly
-                className="font-mono text-xs sm:text-sm mt-1 sm:mt-1.5 min-h-[100px] sm:min-h-[120px] max-h-[30vh] sm:max-h-[40vh] overflow-y-auto bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
+                className="font-mono text-xs sm:text-sm mt-1 sm:mt-1.5 min-h-[100px] sm:min-h-[120px] max-h-[300px] overflow-y-auto bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
               />
             </div>
           </div>
