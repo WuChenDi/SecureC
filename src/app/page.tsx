@@ -422,27 +422,27 @@ export default function PasswordPage() {
                     </Button>
                   )}
                   {(encryptedData || decryptedData) && (
-                    <Button
-                      variant="default"
-                      size="lg"
-                      onClick={clearState}
-                      className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-400/30 hover:shadow-orange-500/40"
-                    >
-                      <RefreshCw className="w-5 h-5" />
-                      Reset
-                    </Button>
-                  )}
-                  {(encryptedData || decryptedData) && (
-                    <Button
-                      variant="default"
-                      size="lg"
-                      disabled={isProcessing || (inputMode === 'file' && !fileInfo)}
-                      onClick={handleDownload}
-                      className="flex-1 flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 shadow-sm"
-                    >
-                      <Download className="w-5 h-5" />
-                      Download
-                    </Button>
+                    <>
+                      <Button
+                        variant="default"
+                        size="lg"
+                        onClick={clearState}
+                        className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-400/30 hover:shadow-orange-500/40"
+                      >
+                        <RefreshCw className="w-5 h-5" />
+                        Reset
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="lg"
+                        disabled={isProcessing || (inputMode === 'file' && !fileInfo)}
+                        onClick={handleDownload}
+                        className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-400/30 hover:shadow-green-500/40"
+                      >
+                        <Download className="w-5 h-5" />
+                        Download
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -540,27 +540,27 @@ export default function PasswordPage() {
                     </Button>
                   )}
                   {(encryptedData || decryptedData) && (
-                    <Button
-                      variant="default"
-                      size="lg"
-                      onClick={clearState}
-                      className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-400/30 hover:shadow-orange-500/40"
-                    >
-                      <RefreshCw className="w-5 h-5" />
-                      Reset
-                    </Button>
-                  )}
-                  {(encryptedData || decryptedData) && (
-                    <Button
-                      variant="default"
-                      size="lg"
-                      disabled={isProcessing || (inputMode === 'file' && !fileInfo)}
-                      onClick={handleDownload}
-                      className="flex-1 flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 shadow-sm"
-                    >
-                      <Download className="w-5 h-5" />
-                      Download
-                    </Button>
+                    <>
+                      <Button
+                        variant="default"
+                        size="lg"
+                        onClick={clearState}
+                        className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-400/30 hover:shadow-orange-500/40"
+                      >
+                        <RefreshCw className="w-5 h-5" />
+                        Reset
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="lg"
+                        disabled={isProcessing || (inputMode === 'file' && !fileInfo)}
+                        onClick={handleDownload}
+                        className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-400/30 hover:shadow-green-500/40"
+                      >
+                        <Download className="w-5 h-5" />
+                        Download
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>

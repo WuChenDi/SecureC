@@ -17,10 +17,12 @@ export function FileInfoDisplay({ fileInfo }: FileInfoDisplayProps) {
           <span className="text-gray-500 dark:text-gray-400 font-medium">Size</span>
           <p className="font-semibold text-gray-700 dark:text-gray-300">{formatFileSize(fileInfo.size)}</p>
         </div>
-        <div className="sm:col-span-2 space-y-1.5 sm:space-y-2">
-          <span className="text-gray-500 dark:text-gray-400 font-medium">Type</span>
-          <p className="font-semibold text-gray-700 dark:text-gray-300">{fileInfo.type}</p>
-        </div>
+        {fileInfo.type && fileInfo.type !== 'Unknown' && (
+          <div className="sm:col-span-2 space-y-1.5 sm:space-y-2">
+            <span className="text-gray-500 dark:text-gray-400 font-medium">Type</span>
+            <p className="font-semibold text-gray-700 dark:text-gray-300">{fileInfo.type}</p>
+          </div>
+        )}
       </div>
     </div>
   )
