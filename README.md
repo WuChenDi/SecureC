@@ -8,6 +8,11 @@ SecureVault is a Next.js-based client-side encryption tool designed to securely 
 - V2: <https://e507d271.secure-vault.pages.dev/>
 - V1: <https://57914116.secure-vault.pages.dev/>
 
+<details>
+  <summary>Preview</summary>
+  <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png" />
+</details>
+
 ## Features
 
 - **File and Text Encryption**: Encrypt and decrypt any file type or text messages using AES-GCM.
