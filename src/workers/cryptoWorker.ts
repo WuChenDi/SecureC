@@ -13,7 +13,13 @@ interface WorkerInput {
   isTextMode: boolean;
 }
 
-const argonOpts = { t: 2, m: 10, p: 1, maxmem: 2 ** 32 - 1 }
+// https://www.ory.sh/blog/choose-recommended-argon2-parameters-password-hashing
+const argonOpts = { 
+  t: 3,                 // Time cost
+  m: 1280,              // Memory cost (in KiB)
+  p: 4,                 // Parallelism
+  maxmem: 2 ** 32 - 1   // Maximum memory (4GB)
+}
 
 // Web Worker for password-based encryption/decryption tasks
 self.onmessage = async (e: MessageEvent<WorkerInput>) => {
