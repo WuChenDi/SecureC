@@ -60,6 +60,12 @@ SecureVault is a Next.js-based client-side encryption tool designed to securely 
 - **Client-Side Risks**: Ensure your browser is free from malware or extensions that could access sensitive data like passwords or files.
 - **No Server Storage**: Since all processing is client-side, no data is stored on servers, but users must manage their own backups of encrypted files.
 
+- https://pastebin.com/
+- https://defuse.ca/pastebin.htm
+- https://cowtransfer.com/
+- https://www.transfernow.net/en
+- https://about.encl.io/
+
 ## 📜 License
 
 [MIT](./LICENSE) License © 2025-PRESENT [wudi](https://github.com/WuChenDi)
