@@ -2,12 +2,6 @@
 
 SecureVault is a Next.js-based client-side encryption tool designed to securely encrypt and decrypt files and text messages using AES-GCM symmetric encryption. It leverages the `@noble/ciphers` library for encryption and Argon2id for secure password-based key derivation, supports chunked processing for large files, and ensures smooth performance with Web Workers.
 
-## Link
-
-- Latest: <https://secure-vault.pages.dev/>
-- V2: <https://e507d271.secure-vault.pages.dev/>
-- V1: <https://57914116.secure-vault.pages.dev/>
-
 <details>
   <summary>Preview</summary>
   <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png" />
@@ -22,6 +16,54 @@ SecureVault is a Next.js-based client-side encryption tool designed to securely 
 - **Manual Download**: Download encrypted (`.enc`) or decrypted files with one click, with timestamped filenames.
 - **Progress Feedback**: Real-time progress updates during encryption/decryption for a better user experience.
 - **Client-Side Privacy**: All operations are performed locally, ensuring data never leaves your device.
+
+## Architecture
+
+```mermaid
+graph TD
+    A[User]
+    A -->|Interaction| B[Frontend Interface]
+    B -->|File/Text Input| C[PasswordPage]
+    B -->|Password Input| D[PasswordInput]
+    C -->|Trigger Encryption/Decryption| E[Web Worker]
+    C -->|State Management| F[React State]
+    C -->|File Prompt| G[Sonner Toaster]
+    C -->|Text Display| H[Dialog]
+    E -->|Chunk Processing| I[AES-GCM Encryption]
+    E -->|Key Derivation| J[Argon2id]
+    I -->|Encrypted Data| K[Data Processing]
+    J -->|Key| I
+    K -->|Metadata| L[FileInfo]
+    K -->|File Download| M[Blob Download]
+    K -->|Text Output| H
+    B -->|Theme Switching| N[Next-Themes]
+    B -->|Visual Effects| O[Aurora/Particles]
+    B -->|Error Handling| P[Error Page]
+
+    subgraph Frontend Layer
+        B[Frontend Interface]
+        C[PasswordPage]
+        D[PasswordInput]
+        F[React State]
+        G[Sonner Toaster]
+        H[Dialog]
+        N[Next-Themes]
+        O[Aurora/Particles]
+        P[Error Page]
+    end
+
+    subgraph Encryption Layer
+        E[Web Worker]
+        I[AES-GCM Encryption]
+        J[Argon2id]
+    end
+
+    subgraph Data Layer
+        K[Data Processing]
+        L[FileInfo]
+        M[Blob Download]
+    end
+```
 
 ## Instructions
 
