@@ -1,5 +1,6 @@
+/* eslint-disable import/order */
 import { gcm } from '@noble/ciphers/aes.js'
-import { randomBytes } from '@noble/ciphers/webcrypto.js'
+import { randomBytes } from '@noble/ciphers/utils.js'
 import { argon2id } from '@noble/hashes/argon2.js'
 
 import { getFileExtension, getFilenameWithoutExtension } from '@/lib/utils'
