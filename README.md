@@ -1,10 +1,10 @@
-# SecureVault
+# SecureC
 
-SecureVault is a Next.js-based client-side encryption tool designed to securely encrypt and decrypt files and text messages using AES-GCM symmetric encryption. It leverages the `@noble/ciphers` library for encryption and Argon2id for secure password-based key derivation, supports chunked processing for large files, and ensures smooth performance with Web Workers.
+SecureC is a Next.js-based client-side encryption tool designed to securely encrypt and decrypt files and text messages using AES-GCM symmetric encryption. It leverages the `@noble/ciphers` library for encryption and Argon2id for secure password-based key derivation, supports chunked processing for large files, and ensures smooth performance with Web Workers.
 
 <details>
   <summary>Preview</summary>
-  <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png" />
+  <img src="https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureC/index.png" />
 </details>
 
 ## Features
@@ -98,7 +98,7 @@ graph TD
 - **Password Security**: Use strong, unique passwords and store them securely. A lost password will prevent decryption of files or text.
 - **Large File Handling**: Chunked processing ensures efficient handling of large files without excessive memory usage.
 - **Random Salts and IVs**: Each encryption uses a random salt (for Argon2id) and IV (for AES-GCM) to enhance security.
-- **HTTPS**: Deploy SecureVault over HTTPS in production to secure file uploads and downloads.
+- **HTTPS**: Deploy SecureC over HTTPS in production to secure file uploads and downloads.
 - **Client-Side Risks**: Ensure your browser is free from malware or extensions that could access sensitive data like passwords or files.
 - **No Server Storage**: Since all processing is client-side, no data is stored on servers, but users must manage their own backups of encrypted files.
 

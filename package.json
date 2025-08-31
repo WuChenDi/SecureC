@@ -1,14 +1,14 @@
 {
-  "name": "secure-vault",
+  "name": "securec",
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.",
+  "description": "SecureC is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.",
   "author": "wudi <wuchendi96@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/WuChenDi/secure-vault.git"
+    "url": "https://github.com/WuChenDi/SecureC.git"
   },
   "scripts": {
     "dev": "next dev --turbopack",

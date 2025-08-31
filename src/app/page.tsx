@@ -300,7 +300,7 @@ export default function PasswordPage() {
       <Card className="w-full max-w-xl mx-auto border-none bg-card/20 backdrop-blur-lg p-4 sm:p-6 md:p-8 transition-all duration-300 rounded-2xl">
         <CardHeader className="text-center space-y-2 sm:space-y-3">
           <GradientText className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent flex items-center justify-center gap-2 sm:gap-3">
-            SecureVault
+            SecureC
           </GradientText>
           <ShinyText
             text="AES File & Message Encryption Tool"

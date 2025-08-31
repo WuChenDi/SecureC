@@ -39,11 +39,11 @@ const BackgroundEffects = () => (
 
 // --- SEO Metadata ---
 export const metadata: Metadata = {
-  title: 'SecureVault',
+  title: 'SecureC',
   icons: 'https://notes-wudi.pages.dev/images/logo.png',
-  description: 'SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
+  description: 'SecureC is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
   keywords: [
-    'SecureVault',
+    'SecureC',
     'File encryption',
     'Text encryption',
     'File decryption',
@@ -56,18 +56,18 @@ export const metadata: Metadata = {
   referrer: 'no-referrer-when-downgrade',
   authors: [{ name: 'wudi' }],
   robots: { index: true, follow: true },
-  metadataBase: new URL('https://secure-vault.pages.dev/'),
+  metadataBase: new URL('https://securec.pages.dev/'),
   alternates: {
     canonical: '/'
   },
   openGraph: {
-    title: 'SecureVault',
-    description: 'SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
+    title: 'SecureC',
+    description: 'SecureC is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
     url: '/',
-    siteName: 'SecureVault',
+    siteName: 'SecureC',
     images: [
       {
-        url: 'https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png'
+        url: 'https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureC/index.png'
       }
     ],
     locale: 'en_US',
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SecureVault',
-    description: 'SecureVault is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
-    images: ['https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureVault/index.png'],
+    title: 'SecureC',
+    description: 'SecureC is a client-side tool for secure file and text encryption/decryption using AES-GCM with Argon2id key derivation.',
+    images: ['https://cdn.jsdelivr.net/gh/cdLab996/picture-lib/wudi/SecureC/index.png'],
     creator: '@wuchendi96'
   }
 }
