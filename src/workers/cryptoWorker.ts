@@ -42,13 +42,15 @@ self.onmessage = async (e: MessageEvent<WorkerInput>) => {
       const iv = randomBytes(12)
       const key = argon2id(password, salt, argonOpts)
 
+      // FIX: Initialize AES-GCM instance ONCE only, before chunk loop
+      const aes = gcm(key, iv)
+
       self.postMessage({ progress: 20, stage: 'Encrypting data...' })
 
       const encryptedChunks: Uint8Array[] = []
       const totalChunks = chunks.length
 
       for (let i = 0; i < chunks.length; i++) {
-        const aes = gcm(key, iv)
         const ciphertext = aes.encrypt(new Uint8Array(chunks[i]))
         encryptedChunks.push(ciphertext)
         self.postMessage({ progress: 20 + ((i + 1) / totalChunks) * 60 })
@@ -178,6 +180,9 @@ self.onmessage = async (e: MessageEvent<WorkerInput>) => {
         self.postMessage({ progress: 40, stage: 'Deriving key from password...' })
         const key = argon2id(password, salt, argonOpts)
 
+        // FIX: Initialize AES-GCM instance ONCE
+        const aes = gcm(key, iv)
+
         self.postMessage({ progress: 50, stage: 'Extracting encrypted data...' })
 
         const encryptedChunks: Uint8Array[] = []
@@ -198,7 +203,6 @@ self.onmessage = async (e: MessageEvent<WorkerInput>) => {
         const totalChunks = encryptedChunks.length
         for (let i = 0; i < encryptedChunks.length; i++) {
           try {
-            const aes = gcm(key, iv)
             const decrypted = aes.decrypt(encryptedChunks[i])
             decryptedChunks.push(decrypted)
             totalDecryptedLength += decrypted.length
