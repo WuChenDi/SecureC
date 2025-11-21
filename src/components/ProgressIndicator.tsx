@@ -21,7 +21,7 @@ export default function ProgressIndicator({ isProcessing, processingStage, proce
       </div>
       <Progress
         value={processingProgress}
-        className="h-2 sm:h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full bg-gradient-to-r"
+        className="h-2 sm:h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full bg-linear-to-r"
       />
     </div>
   )
