@@ -53,6 +53,8 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+next-env.d.ts
+
 # Optional npm cache directory
 .npm
 
@@ -91,6 +93,7 @@ web_modules/
 # Next.js build output
 .next
 out
+messages/en.d.json.ts
 
 # Nuxt.js build / generate output
 .DS_Store
@@ -148,3 +151,6 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 .user.ini
+
+collect_files.sh
+files_summary.md
