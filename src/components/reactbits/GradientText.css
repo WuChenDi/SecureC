@@ -9,7 +9,7 @@
   border-radius: 1.25rem;
   /* 20px */
   font-weight: 500;
-  backdrop-filter: blur(10px);
+  /* backdrop-filter: blur(10px); */
   transition: box-shadow 0.5s ease-out;
   overflow: hidden;
   cursor: pointer;

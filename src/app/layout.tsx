@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL('https://securec.pages.dev/'),
   alternates: {
-    canonical: '/',
+    canonical: '/'
   },
   applicationName: 'SecureC Encryption Tool',
   category: 'Security Tools, Encryption, Privacy Tools',
