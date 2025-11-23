@@ -1,5 +1,6 @@
 import { base58 } from '@scure/base'
 import { clsx, type ClassValue } from 'clsx'
+import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -105,4 +106,40 @@ export function getFileExtension(filename: string) {
 export function getFilenameWithoutExtension(filename: string) {
   const parts = filename.split('.')
   return parts.length > 1 ? parts.slice(0, -1).join('.') : filename
+}
+
+/**
+ * Triggers a file download in the browser from raw binary data.
+ *
+ * Converts the given `ArrayBuffer` into a Blob, creates a temporary download link,
+ * and programmatically triggers a click to start the download.
+ * Automatically cleans up the DOM element and revokes the object URL.
+ *
+ * @param {ArrayBuffer} data - The binary data to download.
+ * @param {string} filename - The name of the downloaded file (e.g., "report.pdf").
+ */
+export function downloadFile(data: ArrayBuffer, filename: string): void {
+  const blob = new Blob([data], { type: 'application/octet-stream' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.style.display = 'none'
+  document.body.appendChild(a)
+  try {
+    a.click()
+  } finally {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+}
+
+export async function handleCopyText(message: string) {
+  try {
+    await navigator.clipboard.writeText(message)
+    toast.success('Text copied to clipboard!')
+  } catch (error) {
+    console.error('Failed to copy message:', error)
+    toast.error('Failed to copy message')
+  }
 }

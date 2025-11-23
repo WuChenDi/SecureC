@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { PasswordInput } from '@/components/ui/password-input'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { cn, generateTimestamp, getFilenameWithoutExtension } from '@/lib/utils'
+import { cn, downloadFile, generateTimestamp, getFilenameWithoutExtension, handleCopyText } from '@/lib/utils'
 import { FileInfo } from '@/types'
 
 export default function PasswordPage() {
@@ -39,6 +39,7 @@ export default function PasswordPage() {
 
   useEffect(() => {
     workerRef.current = new Worker(new URL('../workers/cryptoWorker.ts', import.meta.url))
+    console.log('import.meta.url', import.meta.url)
     return () => workerRef.current?.terminate()
   }, [])
 
@@ -109,29 +110,6 @@ export default function PasswordPage() {
       reader.onerror = () => reject(new Error('Failed to read file'))
       reader.readAsArrayBuffer(blob)
     })
-  }
-
-  const downloadFile = (data: ArrayBuffer, filename: string) => {
-    const blob = new Blob([data])
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    a.style.display = 'none'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
-
-  const handleCopyText = async (message: string) => {
-    try {
-      await navigator.clipboard.writeText(message)
-      toast.success('Text copied to clipboard!')
-    } catch (error) {
-      console.error('Failed to copy message:', error)
-      toast.error('Failed to copy message')
-    }
   }
 
   const clearState = () => {
