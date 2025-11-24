@@ -1,7 +1,8 @@
 import { base58 } from '@scure/base'
 import { clsx, type ClassValue } from 'clsx'
-import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
+
+export * from './clipboard'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -131,15 +132,5 @@ export function downloadFile(data: ArrayBuffer, filename: string): void {
   } finally {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-  }
-}
-
-export async function handleCopyText(message: string) {
-  try {
-    await navigator.clipboard.writeText(message)
-    toast.success('Text copied to clipboard!')
-  } catch (error) {
-    console.error('Failed to copy message:', error)
-    toast.error('Failed to copy message')
   }
 }

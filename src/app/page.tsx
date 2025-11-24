@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { PasswordInput } from '@/components/ui/password-input'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { cn, downloadFile, generateTimestamp, getFilenameWithoutExtension, handleCopyText } from '@/lib/utils'
+import { cn, copyToClipboard, downloadFile, generateTimestamp, getFilenameWithoutExtension } from '@/lib/utils'
 import { FileInfo } from '@/types'
 
 export default function PasswordPage() {
@@ -586,7 +586,7 @@ export default function PasswordPage() {
                     variant="ghost"
                     size="sm"
                     className="h-7 sm:h-8 px-1.5 sm:px-2 text-xs"
-                    onClick={() => handleCopyText(encryptedText || decryptedText)}
+                    onClick={() => copyToClipboard(encryptedText || decryptedText)}
                   >
                     <Clipboard className="h-3 w-3" />
                     <span className="hidden sm:inline">Copy content</span>
