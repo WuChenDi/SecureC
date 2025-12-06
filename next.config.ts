@@ -9,10 +9,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'notes-wudi.pages.dev'
-      }
-    ]
-  }
+        hostname: 'notes-wudi.pages.dev',
+      },
+    ],
+  },
 }
 
 export default nextConfig

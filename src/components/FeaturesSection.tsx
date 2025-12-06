@@ -1,4 +1,4 @@
-import { Info, ChevronDown } from 'lucide-react'
+import { ChevronDown, Info } from 'lucide-react'
 import { useState } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -10,7 +10,7 @@ export default function FeaturesSection() {
     'Encrypt and decrypt files or text securely with AES-GCM.',
     'Derive secure keys from passwords using Argon2id.',
     'Process large files efficiently with chunked encryption.',
-    'Download encrypted or decrypted results with one click.'
+    'Download encrypted or decrypted results with one click.',
   ]
 
   return (
@@ -26,7 +26,7 @@ export default function FeaturesSection() {
         <ChevronDown
           className={cn(
             'w-4.5 h-4.5 text-gray-400 transition-transform duration-200',
-            showFeatures && 'rotate-180'
+            showFeatures && 'rotate-180',
           )}
         />
       </div>
@@ -34,11 +34,10 @@ export default function FeaturesSection() {
       {showFeatures && (
         <div className="px-4 pb-4 space-y-3">
           {features.map((feature, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders don't need stable keys
             <div key={index} className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0" />
-              <p className="text-sm text-gray-400 leading-relaxed">
-                {feature}
-              </p>
+              <p className="text-sm text-gray-400 leading-relaxed">{feature}</p>
             </div>
           ))}
 
