@@ -9,8 +9,10 @@ const DEFAULT_DERIVATION_PATH = "m/44'/0'/0'/0/0"
 
 // console.log(bip39.generateMnemonic(wordlist)) // blouse size crystal critic this slow rotate run neglect regret mind head
 
-const aliceMnemonic = 'gallery nut tank snake doll kiss toddler sign era magnet battle gap'
-const bobMnemonic = 'hello popular adapt this mix scale dial cat shop top rice iron'
+const aliceMnemonic =
+  'gallery nut tank snake doll kiss toddler sign era magnet battle gap'
+const bobMnemonic =
+  'hello popular adapt this mix scale dial cat shop top rice iron'
 
 const aliceSeed = bip39.mnemonicToSeedSync(aliceMnemonic)
 const bobSeed = bip39.mnemonicToSeedSync(bobMnemonic)

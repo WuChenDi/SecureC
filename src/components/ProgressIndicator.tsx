@@ -6,7 +6,11 @@ interface ProgressIndicatorProps {
   processingProgress: number
 }
 
-export default function ProgressIndicator({ isProcessing, processingStage, processingProgress }: ProgressIndicatorProps) {
+export default function ProgressIndicator({
+  isProcessing,
+  processingStage,
+  processingProgress,
+}: ProgressIndicatorProps) {
   if (!isProcessing) return null
 
   return (

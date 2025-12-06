@@ -13,7 +13,7 @@ function legacyCopy(value: string): boolean {
   tempTextarea.style.left = '-9999px'
   tempTextarea.style.top = '-9999px'
   tempTextarea.setAttribute('readonly', '')
-    
+
   try {
     document.body.appendChild(tempTextarea)
 
@@ -68,7 +68,7 @@ export async function copyToClipboard(message: string): Promise<boolean> {
         toast.success('Text copied to clipboard!')
         return true
       } else {
-        throw new Error('Legacy copy command failed.') 
+        throw new Error('Legacy copy command failed.')
       }
     }
   } catch (error) {
