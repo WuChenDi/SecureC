@@ -62,7 +62,6 @@ export default function PasswordPage() {
     workerRef.current = new Worker(
       new URL('../workers/cryptoWorker.ts', import.meta.url),
     )
-    console.log('import.meta.url', import.meta.url)
     return () => workerRef.current?.terminate()
   }, [])
 
@@ -450,7 +449,7 @@ export default function PasswordPage() {
                         isProcessing
                       }
                       onClick={() => processInput('encrypt')}
-                      className="flex-1 text-white transition-all duration-300 shadow-md disabled:shadow-none bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-400/30 hover:shadow-blue-500/40"
+                      className="flex-1 transition-all duration-300 shadow-md disabled:shadow-none shadow-blue-400/30 hover:shadow-blue-500/40"
                     >
                       <Lock className="w-5 h-5" />
                       Encrypt
@@ -577,7 +576,7 @@ export default function PasswordPage() {
                         isProcessing
                       }
                       onClick={() => processInput('decrypt')}
-                      className="flex-1 text-white transition-all duration-300 shadow-md disabled:shadow-none bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-400/30 hover:shadow-green-500/40"
+                      className="flex-1 transition-all duration-300 shadow-md disabled:shadow-none bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-400/30 hover:shadow-green-500/40"
                     >
                       <Unlock className="w-5 h-5" />
                       Decrypt
@@ -589,7 +588,7 @@ export default function PasswordPage() {
                         variant="default"
                         size="lg"
                         onClick={clearState}
-                        className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-400/30 hover:shadow-orange-500/40"
+                        className="flex-1 flex items-center justify-center gap-2 transition-all duration-300 shadow-md bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-400/30 hover:shadow-orange-500/40"
                       >
                         <RefreshCw className="w-5 h-5" />
                         Reset
@@ -601,7 +600,7 @@ export default function PasswordPage() {
                           isProcessing || (inputMode === 'file' && !fileInfo)
                         }
                         onClick={handleDownload}
-                        className="flex-1 flex items-center justify-center gap-2 text-white transition-all duration-300 shadow-md bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-400/30 hover:shadow-green-500/40"
+                        className="flex-1 flex items-center justify-center gap-2 transition-all duration-300 shadow-md bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-400/30 hover:shadow-green-500/40"
                       >
                         <Download className="w-5 h-5" />
                         Download

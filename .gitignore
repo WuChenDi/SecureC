@@ -53,8 +53,6 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
-next-env.d.ts
-
 # Optional npm cache directory
 .npm
 
@@ -85,6 +83,14 @@ next-env.d.ts
 .env.test.local
 .env.production.local
 .env.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -153,4 +159,4 @@ dist
 .user.ini
 
 collect_files.sh
-files_summary.md
+files_summary*.md
