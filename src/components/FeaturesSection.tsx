@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import { cn } from '@/lib/utils'
 
-export default function FeaturesSection() {
+export default function FeaturesSection({ className }: { className?: string }) {
   const [showFeatures, setShowFeatures] = useState(false)
 
   const features = [
@@ -14,7 +14,12 @@ export default function FeaturesSection() {
   ]
 
   return (
-    <div className="rounded-lg bg-gray-900/40 border border-gray-800/50 backdrop-blur-sm">
+    <div
+      className={cn(
+        'rounded-lg bg-gray-900/40 border border-gray-800/50 backdrop-blur-sm',
+        className,
+      )}
+    >
       <div
         className="w-full flex items-center justify-between p-4 rounded-lg"
         onClick={() => setShowFeatures(!showFeatures)}
