@@ -240,10 +240,7 @@ export default function PasswordPage() {
         let chunks: ArrayBuffer[] = []
         if (mode === 'encrypt') {
           const textBuffer = new TextEncoder().encode(textInput)
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          // TODO: pending
-          chunks = [textBuffer]
+          chunks = [textBuffer.buffer]
         } else {
           try {
             const decodedText = Buffer.from(textInput.trim(), 'base64')
