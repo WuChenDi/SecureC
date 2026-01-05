@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { copyToClipboard } from '@/lib'
 import type { ProcessResult } from '@/types'
+import { ModeEnum } from '@/types'
 
 interface SCResultDialogProps {
   open: boolean
@@ -32,10 +33,12 @@ export function SCResultDialog({
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
-            {result?.mode === 'encrypt' ? 'Encrypted Text' : 'Decrypted Text'}
+            {result?.mode === ModeEnum.ENCRYPT
+              ? 'Encrypted Text'
+              : 'Decrypted Text'}
           </DialogTitle>
           <DialogDescription>
-            {result?.mode === 'encrypt'
+            {result?.mode === ModeEnum.ENCRYPT
               ? 'Your message has been encrypted successfully'
               : 'Your message has been decrypted successfully'}
           </DialogDescription>
@@ -45,7 +48,7 @@ export function SCResultDialog({
           <div>
             <div className="flex items-center justify-between mb-2">
               <Label className="text-sm font-medium">
-                {result?.mode === 'encrypt'
+                {result?.mode === ModeEnum.ENCRYPT
                   ? 'Encrypted Content'
                   : 'Decrypted Content'}
               </Label>
