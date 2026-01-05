@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { PasswordInput } from '@/components/ui/password-input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { cn, generateTimestamp, genid } from '@/lib'
+import { cn, genid } from '@/lib'
 import { useProcessStore } from '@/store/useProcessStore'
 import type { FileInfo, ProcessResult } from '@/types'
 
@@ -82,7 +82,6 @@ export default function PasswordPage() {
     }
 
     const taskId = String(genid.nextId())
-    const timestamp = generateTimestamp()
 
     const initialResult: ProcessResult = {
       id: taskId,
@@ -90,7 +89,7 @@ export default function PasswordPage() {
       inputMode,
       data: new ArrayBuffer(0),
       fileInfo: fileInfo || undefined,
-      timestamp,
+      timestamp: Date.now(),
       status: 'processing',
       progress: 0,
       stage: 'Initializing...',

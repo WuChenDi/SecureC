@@ -6,10 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Default derivation path for key generation
-// eslint-disable-next-line quotes
-export const DEFAULT_DERIVATION_PATH = "m/44'/0'/0'/0/0"
-
 export function formatFileSize(bytes: number) {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
@@ -17,8 +13,6 @@ export function formatFileSize(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
-
-export const generateTimestamp = () => Date.now()
 
 export function getFileExtension(filename: string) {
   const parts = filename.split('.')
