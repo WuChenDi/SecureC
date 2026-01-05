@@ -67,20 +67,6 @@ export default function PasswordPage() {
     clearInput()
   }
 
-  const readFileChunk = (
-    file: File,
-    offset: number,
-    chunkSize: number,
-  ): Promise<ArrayBuffer> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      const blob = file.slice(offset, offset + chunkSize)
-      reader.onload = () => resolve(reader.result as ArrayBuffer)
-      reader.onerror = () => reject(new Error('Failed to read file'))
-      reader.readAsArrayBuffer(blob)
-    })
-  }
-
   const processInput = async (mode: 'encrypt' | 'decrypt') => {
     if (inputMode === 'file' && !selectedFile) {
       toast.error('Please select a file first')
@@ -118,26 +104,10 @@ export default function PasswordPage() {
       if (!worker) throw new Error('Web Worker not initialized')
 
       if (inputMode === 'file' && selectedFile) {
-        const CHUNK_SIZE = 5 * 1024 * 1024
-        const chunks: ArrayBuffer[] = []
-        const fileSize = selectedFile.size
-        let offset = 0
-
-        while (offset < fileSize) {
-          const chunk = await readFileChunk(selectedFile, offset, CHUNK_SIZE)
-          chunks.push(chunk)
-          offset += CHUNK_SIZE
-        }
-
-        if (fileSize > 50 * 1024 * 1024) {
-          toast.warning(
-            'Large file detected. Processing may be slow on client-side.',
-          )
-        }
-
         const result = await new Promise<{
-          data: ArrayBuffer
+          data: Blob
           filename: string
+          base64?: string
           originalExtension?: string
         }>((resolve, reject) => {
           worker.onmessage = (e: MessageEvent) => {
@@ -153,23 +123,27 @@ export default function PasswordPage() {
               resolve(data)
             }
           }
+
           worker.postMessage({
             mode,
-            chunks,
+            file: selectedFile,
             filename: selectedFile.name,
             password,
-            encryptionMode: 'password',
             isTextMode: false,
           })
         })
 
+        const resultArrayBuffer = await result.data.arrayBuffer()
+
         updateResult(taskId, {
-          data: result.data,
+          data: resultArrayBuffer,
           status: 'completed',
           progress: 100,
           stage: 'Complete!',
           fileInfo: {
-            ...fileInfo!,
+            name: result.filename,
+            size: result.data.size,
+            type: result.data.type,
             originalExtension: result.originalExtension,
           },
         })
@@ -180,24 +154,10 @@ export default function PasswordPage() {
 
         clearInput()
       } else if (inputMode === 'message') {
-        let chunks: ArrayBuffer[] = []
-        if (mode === 'encrypt') {
-          const textBuffer = new TextEncoder().encode(textInput)
-          chunks = [textBuffer.buffer]
-        } else {
-          try {
-            const decodedText = Buffer.from(textInput.trim(), 'base64')
-            chunks = [decodedText.buffer]
-          } catch (error) {
-            console.error('Invalid Base64 input for decryption:', error)
-            throw new Error('Invalid Base64 input for decryption')
-          }
-        }
-
         const result = await new Promise<{
-          data: ArrayBuffer
+          data: Blob
           filename: string
-          originalExtension?: string
+          base64: string
         }>((resolve, reject) => {
           worker.onmessage = (e: MessageEvent) => {
             const { data, error, progress, stage } = e.data
@@ -212,30 +172,20 @@ export default function PasswordPage() {
               resolve(data)
             }
           }
-          const filename =
-            mode === 'encrypt'
-              ? `encrypted_text_${timestamp}.enc`
-              : `${timestamp}.txt`
+
           worker.postMessage({
             mode,
-            chunks,
-            filename,
+            text: textInput,
             password,
-            encryptionMode: 'password',
             isTextMode: true,
           })
         })
 
-        let resultText = ''
-        if (mode === 'encrypt') {
-          resultText = Buffer.from(result.data).toString('base64')
-        } else {
-          resultText = new TextDecoder().decode(result.data)
-        }
+        const resultArrayBuffer = await result.data.arrayBuffer()
 
         updateResult(taskId, {
-          data: result.data,
-          text: resultText,
+          data: resultArrayBuffer,
+          text: result.base64,
           status: 'completed',
           progress: 100,
           stage: 'Complete!',
