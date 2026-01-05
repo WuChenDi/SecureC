@@ -15,7 +15,11 @@ export interface ProcessResult {
   mode: 'encrypt' | 'decrypt'
   inputMode: 'file' | 'message'
   data: ArrayBuffer
-  fileInfo?: FileInfo
   text?: string
+  fileInfo?: FileInfo & { originalExtension?: string }
   timestamp: string | number
+  status: 'processing' | 'completed' | 'failed'
+  progress?: number
+  stage?: string
+  error?: string
 }

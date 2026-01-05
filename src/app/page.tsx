@@ -6,8 +6,7 @@ import { toast } from 'sonner'
 
 import FeaturesSection from '@/components/FeaturesSection'
 import { FileInfoDisplay } from '@/components/FileInfoDisplay'
-import ProgressIndicator from '@/components/ProgressIndicator'
-import { SCHeader, SCProcessingHistory, SCResultDialog } from '@/components/SC'
+import { SCHeader, SCProcessingHistory } from '@/components/SC'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,12 +14,7 @@ import { PasswordInput } from '@/components/ui/password-input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { genid } from '@/lib'
-import {
-  cn,
-  downloadFile,
-  generateTimestamp,
-  getFilenameWithoutExtension,
-} from '@/lib/utils'
+import { cn, generateTimestamp } from '@/lib/utils'
 import { useProcessStore } from '@/store/useProcessStore'
 import type { FileInfo, ProcessResult } from '@/types'
 
@@ -29,17 +23,11 @@ export default function PasswordPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null)
   const [textInput, setTextInput] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
   const [inputMode, setInputMode] = useState<'file' | 'message'>('file')
+  const [activeTab, setActiveTab] = useState<'encrypt' | 'decrypt'>('encrypt')
 
   const addResult = useProcessStore((state) => state.addResult)
-  const clearResults = useProcessStore((state) => state.clearResults)
-
-  const [currentResult, setCurrentResult] = useState<ProcessResult | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [processingProgress, setProcessingProgress] = useState(0)
-  const [processingStage, setProcessingStage] = useState('')
-  const [activeTab, setActiveTab] = useState<'encrypt' | 'decrypt'>('encrypt')
+  const updateResult = useProcessStore((state) => state.updateResult)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const workerRef = useRef<Worker | null>(null)
@@ -70,22 +58,6 @@ export default function PasswordPage() {
     setSelectedFile(null)
     setFileInfo(null)
     setTextInput('')
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }
-
-  const resetAll = () => {
-    setPassword('')
-    setSelectedFile(null)
-    setFileInfo(null)
-    setTextInput('')
-    clearResults()
-    setCurrentResult(null)
-    setIsDialogOpen(false)
-    setIsProcessing(false)
-    setProcessingProgress(0)
-    setProcessingStage('')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -124,9 +96,23 @@ export default function PasswordPage() {
       return
     }
 
-    setIsProcessing(true)
-    setProcessingProgress(0)
-    setProcessingStage('Initializing...')
+    const taskId = String(genid.nextId())
+    const timestamp = generateTimestamp()
+
+    const initialResult: ProcessResult = {
+      id: taskId,
+      mode,
+      inputMode,
+      data: new ArrayBuffer(0),
+      fileInfo: fileInfo || undefined,
+      timestamp,
+      status: 'processing',
+      progress: 0,
+      stage: 'Initializing...',
+    }
+
+    addResult(initialResult)
+    toast.info(`${mode === 'encrypt' ? 'Encryption' : 'Decryption'} started`)
 
     try {
       const worker = workerRef.current
@@ -137,11 +123,13 @@ export default function PasswordPage() {
         const chunks: ArrayBuffer[] = []
         const fileSize = selectedFile.size
         let offset = 0
+
         while (offset < fileSize) {
           const chunk = await readFileChunk(selectedFile, offset, CHUNK_SIZE)
           chunks.push(chunk)
           offset += CHUNK_SIZE
         }
+
         if (fileSize > 50 * 1024 * 1024) {
           toast.warning(
             'Large file detected. Processing may be slow on client-side.',
@@ -158,10 +146,10 @@ export default function PasswordPage() {
             if (error) {
               reject(new Error(error))
             } else if (progress !== undefined) {
-              setProcessingProgress(progress)
-              if (stage) {
-                setProcessingStage(stage)
-              }
+              updateResult(taskId, {
+                progress,
+                stage: stage || `Processing... ${progress}%`,
+              })
             } else if (data) {
               resolve(data)
             }
@@ -176,20 +164,16 @@ export default function PasswordPage() {
           })
         })
 
-        const newResult: ProcessResult = {
-          id: String(genid.nextId()),
-          mode,
-          inputMode: 'file',
+        updateResult(taskId, {
           data: result.data,
+          status: 'completed',
+          progress: 100,
+          stage: 'Complete!',
           fileInfo: {
             ...fileInfo!,
             originalExtension: result.originalExtension,
           },
-          timestamp: generateTimestamp(),
-        }
-
-        addResult(newResult)
-        setCurrentResult(newResult)
+        })
 
         toast.success(
           `File ${mode === 'encrypt' ? 'encrypted' : 'decrypted'} successfully!`,
@@ -221,15 +205,14 @@ export default function PasswordPage() {
             if (error) {
               reject(new Error(error))
             } else if (progress !== undefined) {
-              setProcessingProgress(progress)
-              if (stage) {
-                setProcessingStage(stage)
-              }
+              updateResult(taskId, {
+                progress,
+                stage: stage || `Processing... ${progress}%`,
+              })
             } else if (data) {
               resolve(data)
             }
           }
-          const timestamp = generateTimestamp()
           const filename =
             mode === 'encrypt'
               ? `encrypted_text_${timestamp}.enc`
@@ -251,63 +234,34 @@ export default function PasswordPage() {
           resultText = new TextDecoder().decode(result.data)
         }
 
-        const newResult: ProcessResult = {
-          id: String(genid.nextId()),
-          mode,
-          inputMode: 'message',
+        updateResult(taskId, {
           data: result.data,
           text: resultText,
-          timestamp: generateTimestamp(),
-        }
-
-        addResult(newResult)
-        setCurrentResult(newResult)
-        setIsDialogOpen(true)
+          status: 'completed',
+          progress: 100,
+          stage: 'Complete!',
+        })
 
         toast.success(
-          `Text ${mode === 'encrypt' ? 'encrypted' : 'decrypted'} successfully!`,
+          `Text ${mode === 'encrypt' ? 'encrypted' : 'decrypted'} successfully! Check the history to view result.`,
         )
 
         clearInput()
       }
-
-      setTimeout(() => {
-        setProcessingProgress(0)
-        setProcessingStage('')
-      }, 1000)
     } catch (error) {
+      updateResult(taskId, {
+        status: 'failed',
+        error: error instanceof Error ? error.message : 'An error occurred',
+        progress: 0,
+        stage: 'Failed',
+      })
+
       toast.error(
         error instanceof Error
           ? error.message
           : 'An error occurred during processing',
       )
-    } finally {
-      setIsProcessing(false)
     }
-  }
-
-  const downloadResult = (result: ProcessResult) => {
-    if (result.inputMode === 'message') {
-      const filename =
-        result.mode === 'encrypt'
-          ? `encrypted_text_${result.timestamp}.enc`
-          : `${result.timestamp}.txt`
-      downloadFile(result.data, filename)
-    } else if (result.fileInfo) {
-      if (result.mode === 'encrypt') {
-        const nameWithoutExt = getFilenameWithoutExtension(result.fileInfo.name)
-        downloadFile(result.data, `${nameWithoutExt}_${result.timestamp}.enc`)
-      } else {
-        const extension = result.fileInfo.originalExtension || 'bin'
-        downloadFile(result.data, `${result.timestamp}.${extension}`)
-      }
-    }
-    toast.success('File downloaded successfully')
-  }
-
-  const handleViewResult = (result: ProcessResult) => {
-    setCurrentResult(result)
-    setIsDialogOpen(true)
   }
 
   const isEncrypt = activeTab === 'encrypt'
@@ -445,8 +399,7 @@ export default function PasswordPage() {
                   disabled={
                     (inputMode === 'file' && !selectedFile) ||
                     (inputMode === 'message' && !textInput.trim()) ||
-                    !password ||
-                    isProcessing
+                    !password
                   }
                   onClick={() => processInput(activeTab)}
                   className={cn(
@@ -466,24 +419,11 @@ export default function PasswordPage() {
               </div>
             </div>
           </Tabs>
-
-          <ProgressIndicator
-            isProcessing={isProcessing}
-            processingStage={processingStage}
-            processingProgress={processingProgress}
-          />
         </div>
 
-        <SCProcessingHistory onViewResult={handleViewResult} />
+        <SCProcessingHistory />
         <FeaturesSection />
       </div>
-
-      <SCResultDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        result={currentResult}
-        onDownload={downloadResult}
-      />
     </div>
   )
 }

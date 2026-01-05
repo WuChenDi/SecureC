@@ -3,19 +3,24 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import {
+  AlertCircle,
+  CheckCircle,
   Download,
   FileText,
+  Loader2,
   Lock,
   RefreshCw,
   Trash2,
   Unlock,
   Upload,
 } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
+import { SCResultDialog } from '@/components/SC'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { DataTable } from '@/components/ui/table/data-table'
 import {
   downloadFile,
@@ -25,13 +30,7 @@ import {
 import { useProcessStore } from '@/store/useProcessStore'
 import type { ProcessResult } from '@/types'
 
-interface SCProcessingHistoryProps {
-  onViewResult: (result: ProcessResult) => void
-}
-
-export function SCProcessingHistory({
-  onViewResult,
-}: SCProcessingHistoryProps) {
+export function SCProcessingHistory() {
   const { results, removeResult, clearResults } = useProcessStore(
     useShallow((state) => ({
       results: state.processResults,
@@ -40,12 +39,20 @@ export function SCProcessingHistory({
     })),
   )
 
+  const [currentResult, setCurrentResult] = useState<ProcessResult | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   const handleResetAll = useCallback(() => {
     clearResults()
     toast.success('All results cleared')
   }, [clearResults])
 
   const handleDownloadResult = useCallback((result: ProcessResult) => {
+    if (result.status !== 'completed') {
+      toast.error('Cannot download incomplete result')
+      return
+    }
+
     if (result.inputMode === 'message') {
       const filename =
         result.mode === 'encrypt'
@@ -62,6 +69,15 @@ export function SCProcessingHistory({
       }
     }
     toast.success('File downloaded successfully')
+  }, [])
+
+  const handleViewResult = useCallback((result: ProcessResult) => {
+    if (result.status !== 'completed') {
+      toast.error('Cannot view incomplete result')
+      return
+    }
+    setCurrentResult(result)
+    setIsDialogOpen(true)
   }, [])
 
   const handleRemoveResult = useCallback(
@@ -127,6 +143,83 @@ export function SCProcessingHistory({
         enableSorting: false,
       },
       {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => {
+          const { status, progress, stage, error } = row.original
+
+          if (status === 'processing') {
+            return (
+              <Badge variant="outline" className="gap-1.5 px-2">
+                <Loader2 className="size-3.5 animate-spin" />
+                <span>Processing</span>
+              </Badge>
+            )
+          }
+
+          if (status === 'failed') {
+            return (
+              <Badge
+                variant="outline"
+                className="gap-1.5 px-2 text-red-600 border-red-200 dark:border-red-800"
+              >
+                <AlertCircle className="size-3.5" />
+                <span>Failed</span>
+              </Badge>
+            )
+          }
+
+          return (
+            <Badge
+              variant="outline"
+              className="gap-1.5 px-2 text-green-600 border-green-200 dark:border-green-800"
+            >
+              <CheckCircle className="size-3.5 fill-green-500 stroke-border dark:fill-green-400" />
+              <span>Done</span>
+            </Badge>
+          )
+        },
+        size: 120,
+        enableSorting: false,
+      },
+      {
+        id: 'progress',
+        header: 'Progress',
+        cell: ({ row }) => {
+          const { status, progress, stage, error } = row.original
+
+          if (status === 'processing') {
+            return (
+              <div className="space-y-1 min-w-[160px]">
+                <Progress value={progress || 0} className="h-1.5" />
+                <span className="text-xs text-muted-foreground">
+                  {stage || 'Processing...'}
+                </span>
+              </div>
+            )
+          }
+
+          if (status === 'failed' && error) {
+            return (
+              <span
+                className="text-xs text-red-500 block max-w-[160px] truncate"
+                title={error}
+              >
+                {error}
+              </span>
+            )
+          }
+
+          return (
+            <span className="text-xs text-muted-foreground">
+              {status === 'completed' ? 'Completed' : '-'}
+            </span>
+          )
+        },
+        size: 180,
+        enableSorting: false,
+      },
+      {
         id: 'size',
         header: 'Size',
         cell: ({ row }) => (
@@ -136,12 +229,12 @@ export function SCProcessingHistory({
             )}
           </span>
         ),
-        size: 120,
+        size: 100,
         enableSorting: false,
       },
       {
         accessorKey: 'timestamp',
-        header: 'Timestamp',
+        header: 'Time',
         cell: ({ getValue }) => (
           <span className="text-sm text-gray-500">{String(getValue())}</span>
         ),
@@ -153,13 +246,21 @@ export function SCProcessingHistory({
         header: () => <div className="text-right">Actions</div>,
         cell: ({ row }) => {
           const result = row.original
+          const isProcessing = result.status === 'processing'
+          const isFailed = result.status === 'failed'
+          const canView =
+            result.inputMode === 'message' &&
+            result.text &&
+            !isProcessing &&
+            !isFailed
+
           return (
             <div className="flex items-center justify-end gap-2">
-              {result.inputMode === 'message' && result.text && (
+              {canView && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onViewResult(result)}
+                  onClick={() => handleViewResult(result)}
                   title="View text"
                 >
                   <FileText className="size-4" />
@@ -170,6 +271,7 @@ export function SCProcessingHistory({
                 size="sm"
                 onClick={() => handleDownloadResult(result)}
                 title="Download"
+                disabled={isProcessing || isFailed}
               >
                 <Download className="size-4" />
               </Button>
@@ -189,7 +291,7 @@ export function SCProcessingHistory({
         enableSorting: false,
       },
     ],
-    [onViewResult, handleDownloadResult, handleRemoveResult],
+    [handleDownloadResult, handleRemoveResult, handleViewResult],
   )
 
   const table = useReactTable({
@@ -216,6 +318,13 @@ export function SCProcessingHistory({
         </Button>
         <DataTable table={table} />
       </div>
+
+      <SCResultDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        result={currentResult}
+        onDownload={handleDownloadResult}
+      />
     </div>
   )
 }
