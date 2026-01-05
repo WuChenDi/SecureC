@@ -3,6 +3,7 @@ import type * as React from 'react';
 
 import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -10,6 +11,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { getCommonPinningStyles } from '@/lib/data-table';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   table: TanstackTable<TData>;
@@ -26,14 +28,8 @@ export function DataTable<TData>({
       {children}
       <div className='relative flex flex-1'>
         <div className='absolute inset-0 flex overflow-hidden rounded-lg'>
-          <div
-            data-slot="table-container"
-            className="absolute inset-0 overflow-auto rounded-lg border"
-          >
-            <table
-              data-slot="table"
-              className='w-full caption-bottom text-sm'
-            >
+          <ScrollArea className='h-full w-full'>
+            <Table>
               <TableHeader className='bg-muted sticky top-0 z-10'>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
@@ -89,8 +85,9 @@ export function DataTable<TData>({
                   </TableRow>
                 )}
               </TableBody>
-            </table>
-          </div>
+            </Table>
+            <ScrollBar orientation='horizontal' />
+          </ScrollArea>
         </div>
       </div>
       <div className='flex flex-col gap-2.5'>
