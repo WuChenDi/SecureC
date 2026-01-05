@@ -1,4 +1,5 @@
 export * from './clipboard'
+export * from './crypto'
 export * from './data-table'
 export * from './fileIconHelper'
 export * from './genid'

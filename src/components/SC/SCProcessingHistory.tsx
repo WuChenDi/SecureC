@@ -26,7 +26,6 @@ import {
   downloadFile,
   formatFileSize,
   getFileIcon,
-  getFilenameWithoutExtension,
   getFileTypeLabel,
 } from '@/lib'
 import { useProcessStore } from '@/store/useProcessStore'
@@ -62,13 +61,7 @@ export function SCProcessingHistory() {
           : `${result.timestamp}.txt`
       downloadFile(result.data, filename)
     } else if (result.fileInfo) {
-      if (result.mode === 'encrypt') {
-        const nameWithoutExt = getFilenameWithoutExtension(result.fileInfo.name)
-        downloadFile(result.data, `${nameWithoutExt}_${result.timestamp}.enc`)
-      } else {
-        const extension = result.fileInfo.originalExtension || 'bin'
-        downloadFile(result.data, `${result.timestamp}.${extension}`)
-      }
+      downloadFile(result.data, result.fileInfo.name)
     }
     toast.success('File downloaded successfully')
   }, [])

@@ -23,6 +23,7 @@
     "@cdlab996/genid": "^1.1.0",
     "@next/third-parties": "16.1.1",
     "@noble/ciphers": "^2.0.1",
+    "@noble/curves": "^2.0.1",
     "@noble/hashes": "^2.0.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
