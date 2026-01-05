@@ -10,15 +10,31 @@ export interface KeyPair {
   privateKey: string
 }
 
+export enum ModeEnum {
+  ENCRYPT = 'ENCRYPT',
+  DECRYPT = 'DECRYPT',
+}
+
+export enum InputModeEnum {
+  FILE = 'FILE',
+  MESSAGE = 'MESSAGE',
+}
+
+export enum StatusEnum {
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+}
+
 export interface ProcessResult {
   id: string
-  mode: 'encrypt' | 'decrypt'
-  inputMode: 'file' | 'message'
+  mode: keyof typeof ModeEnum
+  inputMode: keyof typeof InputModeEnum
   data: ArrayBuffer
   text?: string
   fileInfo?: FileInfo
   timestamp: number
-  status: 'processing' | 'completed' | 'failed'
+  status: keyof typeof StatusEnum
   progress: number
   stage: string
   error?: string

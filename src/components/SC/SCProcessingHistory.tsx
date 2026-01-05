@@ -31,6 +31,7 @@ import {
 } from '@/lib'
 import { useProcessStore } from '@/store/useProcessStore'
 import type { ProcessResult } from '@/types'
+import { InputModeEnum, ModeEnum, StatusEnum } from '@/types'
 
 export function SCProcessingHistory() {
   const { results, removeResult, removeResults, clearResults } =
@@ -60,14 +61,14 @@ export function SCProcessingHistory() {
   }, [clearResults])
 
   const handleDownloadResult = useCallback((result: ProcessResult) => {
-    if (result.status !== 'completed') {
+    if (result.status !== StatusEnum.COMPLETED) {
       toast.error('Cannot download incomplete result')
       return
     }
 
-    if (result.inputMode === 'message') {
+    if (result.inputMode === InputModeEnum.MESSAGE) {
       const filename =
-        result.mode === 'encrypt'
+        result.mode === ModeEnum.ENCRYPT
           ? `encrypted_text_${result.timestamp}.enc`
           : `${result.timestamp}.txt`
       downloadFile(result.data, filename)
@@ -79,7 +80,7 @@ export function SCProcessingHistory() {
 
   const handleBatchDownload = useCallback(() => {
     const completedResults = selectedResults.filter(
-      (r) => r.status === 'completed',
+      (r) => r.status === StatusEnum.COMPLETED,
     )
 
     if (completedResults.length === 0) {
@@ -103,7 +104,7 @@ export function SCProcessingHistory() {
   }, [selectedResults, removeResults])
 
   const handleViewResult = useCallback((result: ProcessResult) => {
-    if (result.status !== 'completed') {
+    if (result.status !== StatusEnum.COMPLETED) {
       toast.error('Cannot view incomplete result')
       return
     }
@@ -151,7 +152,7 @@ export function SCProcessingHistory() {
         cell: ({ row }) => {
           const result = row.original
 
-          if (result.inputMode === 'message') {
+          if (result.inputMode === InputModeEnum.MESSAGE) {
             return (
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
@@ -241,7 +242,7 @@ export function SCProcessingHistory() {
         cell: ({ row }) => {
           const { status } = row.original
 
-          if (status === 'processing') {
+          if (status === StatusEnum.PROCESSING) {
             return (
               <Badge variant="outline" className="gap-1.5 px-2">
                 <Loader2 className="size-3.5 animate-spin" />
@@ -250,7 +251,7 @@ export function SCProcessingHistory() {
             )
           }
 
-          if (status === 'failed') {
+          if (status === StatusEnum.FAILED) {
             return (
               <Badge
                 variant="outline"
@@ -281,7 +282,7 @@ export function SCProcessingHistory() {
         cell: ({ row }) => {
           const { status, progress, stage, error } = row.original
 
-          if (status === 'processing') {
+          if (status === StatusEnum.PROCESSING) {
             return (
               <div className="space-y-1 min-w-40">
                 <Progress value={progress || 0} className="h-1.5" />
@@ -292,7 +293,7 @@ export function SCProcessingHistory() {
             )
           }
 
-          if (status === 'failed' && error) {
+          if (status === StatusEnum.FAILED && error) {
             return (
               <span
                 className="text-xs text-red-500 block max-w-40 truncate"
@@ -305,7 +306,7 @@ export function SCProcessingHistory() {
 
           return (
             <span className="text-xs text-muted-foreground">
-              {status === 'completed' ? 'Completed' : '-'}
+              {status === StatusEnum.COMPLETED ? 'Completed' : '-'}
             </span>
           )
         },
@@ -339,10 +340,10 @@ export function SCProcessingHistory() {
         header: () => <div className="text-right">Actions</div>,
         cell: ({ row }) => {
           const result = row.original
-          const isProcessing = result.status === 'processing'
-          const isFailed = result.status === 'failed'
+          const isProcessing = result.status === StatusEnum.PROCESSING
+          const isFailed = result.status === StatusEnum.FAILED
           const canView =
-            result.inputMode === 'message' &&
+            result.inputMode === InputModeEnum.MESSAGE &&
             result.text &&
             !isProcessing &&
             !isFailed

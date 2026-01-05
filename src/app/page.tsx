@@ -16,14 +16,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn, genid } from '@/lib'
 import { useProcessStore } from '@/store/useProcessStore'
 import type { FileInfo, ProcessResult } from '@/types'
+import { InputModeEnum, ModeEnum, StatusEnum } from '@/types'
 
 export default function PasswordPage() {
   const [password, setPassword] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null)
   const [textInput, setTextInput] = useState('')
-  const [inputMode, setInputMode] = useState<'file' | 'message'>('file')
-  const [activeTab, setActiveTab] = useState<'encrypt' | 'decrypt'>('encrypt')
+  const [inputMode, setInputMode] = useState<keyof typeof InputModeEnum>(
+    InputModeEnum.FILE,
+  )
+  const [activeTab, setActiveTab] = useState<keyof typeof ModeEnum>(
+    ModeEnum.ENCRYPT,
+  )
 
   const addResult = useProcessStore((state) => state.addResult)
   const updateResult = useProcessStore((state) => state.updateResult)
@@ -73,17 +78,17 @@ export default function PasswordPage() {
     }
   }
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value as 'encrypt' | 'decrypt')
+  const handleTabChange = (value: keyof typeof ModeEnum) => {
+    setActiveTab(value)
     clearInput()
   }
 
-  const processInput = async (mode: 'encrypt' | 'decrypt') => {
-    if (inputMode === 'file' && !selectedFile) {
+  const processInput = async (mode: keyof typeof ModeEnum) => {
+    if (inputMode === InputModeEnum.FILE && !selectedFile) {
       toast.error('Please select a file first')
       return
     }
-    if (inputMode === 'message' && !textInput.trim()) {
+    if (inputMode === InputModeEnum.MESSAGE && !textInput.trim()) {
       toast.error('Please input the message for processing')
       return
     }
@@ -101,19 +106,21 @@ export default function PasswordPage() {
       data: new ArrayBuffer(0),
       fileInfo: fileInfo || undefined,
       timestamp: Date.now(),
-      status: 'processing',
+      status: StatusEnum.PROCESSING,
       progress: 0,
       stage: 'Initializing...',
     }
 
     addResult(initialResult)
-    toast.info(`${mode === 'encrypt' ? 'Encryption' : 'Decryption'} started`)
+    toast.info(
+      `${mode === ModeEnum.ENCRYPT ? 'Encryption' : 'Decryption'} started`,
+    )
 
     try {
       const worker = workerRef.current
       if (!worker) throw new Error('Web Worker not initialized')
 
-      if (inputMode === 'file' && selectedFile) {
+      if (inputMode === InputModeEnum.FILE && selectedFile) {
         const result = await new Promise<{
           data: Blob
           filename: string
@@ -150,7 +157,7 @@ export default function PasswordPage() {
 
         updateResult(taskId, {
           data: resultArrayBuffer,
-          status: 'completed',
+          status: StatusEnum.COMPLETED,
           progress: 100,
           stage: 'Complete!',
           downloadUrl,
@@ -163,11 +170,11 @@ export default function PasswordPage() {
         })
 
         toast.success(
-          `File ${mode === 'encrypt' ? 'encrypted' : 'decrypted'} successfully!`,
+          `File ${mode === ModeEnum.ENCRYPT ? 'encrypted' : 'decrypted'} successfully!`,
         )
 
         clearInput()
-      } else if (inputMode === 'message') {
+      } else if (inputMode === InputModeEnum.MESSAGE) {
         const result = await new Promise<{
           data: Blob
           filename: string
@@ -200,20 +207,20 @@ export default function PasswordPage() {
         updateResult(taskId, {
           data: resultArrayBuffer,
           text: result.base64,
-          status: 'completed',
+          status: StatusEnum.COMPLETED,
           progress: 100,
           stage: 'Complete!',
         })
 
         toast.success(
-          `Text ${mode === 'encrypt' ? 'encrypted' : 'decrypted'} successfully! Check the history to view result.`,
+          `Text ${mode === ModeEnum.ENCRYPT ? 'encrypted' : 'decrypted'} successfully! Check the history to view result.`,
         )
 
         clearInput()
       }
     } catch (error) {
       updateResult(taskId, {
-        status: 'failed',
+        status: StatusEnum.FAILED,
         error: error instanceof Error ? error.message : 'An error occurred',
         progress: 0,
         stage: 'Failed',
@@ -227,7 +234,7 @@ export default function PasswordPage() {
     }
   }
 
-  const isEncrypt = activeTab === 'encrypt'
+  const isEncrypt = activeTab === ModeEnum.ENCRYPT
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -242,13 +249,24 @@ export default function PasswordPage() {
             onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
           />
 
-          <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) =>
+              handleTabChange(value as keyof typeof ModeEnum)
+            }
+          >
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="encrypt" className="flex items-center gap-2">
+              <TabsTrigger
+                value={ModeEnum.ENCRYPT}
+                className="flex items-center gap-2"
+              >
                 <Lock className="size-4" />
                 Encrypt
               </TabsTrigger>
-              <TabsTrigger value="decrypt" className="flex items-center gap-2">
+              <TabsTrigger
+                value={ModeEnum.DECRYPT}
+                className="flex items-center gap-2"
+              >
                 <Unlock className="size-4" />
                 Decrypt
               </TabsTrigger>
@@ -259,16 +277,22 @@ export default function PasswordPage() {
                 <Label>Input Mode</Label>
                 <div className="flex gap-2">
                   <Button
-                    variant={inputMode === 'file' ? 'default' : 'outline'}
-                    onClick={() => setInputMode('file')}
+                    variant={
+                      inputMode === InputModeEnum.FILE ? 'default' : 'outline'
+                    }
+                    onClick={() => setInputMode(InputModeEnum.FILE)}
                     className="flex-1 flex items-center justify-center gap-2"
                   >
                     <Upload className="size-4" />
                     File
                   </Button>
                   <Button
-                    variant={inputMode === 'message' ? 'default' : 'outline'}
-                    onClick={() => setInputMode('message')}
+                    variant={
+                      inputMode === InputModeEnum.MESSAGE
+                        ? 'default'
+                        : 'outline'
+                    }
+                    onClick={() => setInputMode(InputModeEnum.MESSAGE)}
                     className="flex-1 flex items-center justify-center gap-2"
                   >
                     <FileText className="size-4" />
@@ -287,7 +311,7 @@ export default function PasswordPage() {
               </div>
 
               <div className="space-y-3">
-                {inputMode === 'file' ? (
+                {inputMode === InputModeEnum.FILE ? (
                   <>
                     <Label>Select File</Label>
                     <div
@@ -350,7 +374,7 @@ export default function PasswordPage() {
                           ? 'Enter the message to be encrypted'
                           : 'Enter the message to be decrypted'
                       }
-                      className="min-h-[148px] max-h-[300px] text-sm"
+                      className="min-h-37 max-h-75 text-sm"
                     />
                   </>
                 )}
@@ -360,8 +384,9 @@ export default function PasswordPage() {
                 <Button
                   variant="default"
                   disabled={
-                    (inputMode === 'file' && !selectedFile) ||
-                    (inputMode === 'message' && !textInput.trim()) ||
+                    (inputMode === InputModeEnum.FILE && !selectedFile) ||
+                    (inputMode === InputModeEnum.MESSAGE &&
+                      !textInput.trim()) ||
                     !password
                   }
                   onClick={() => processInput(activeTab)}
