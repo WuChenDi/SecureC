@@ -38,6 +38,17 @@ export default function PasswordPage() {
     return () => workerRef.current?.terminate()
   }, [])
 
+  useEffect(() => {
+    return () => {
+      const results = useProcessStore.getState().processResults
+      results.forEach((result) => {
+        if (result.downloadUrl) {
+          URL.revokeObjectURL(result.downloadUrl)
+        }
+      })
+    }
+  }, [])
+
   const handleFileSelect = useCallback((file: File | null) => {
     setSelectedFile(file)
     if (file) {
@@ -134,11 +145,15 @@ export default function PasswordPage() {
 
         const resultArrayBuffer = await result.data.arrayBuffer()
 
+        const blob = new Blob([resultArrayBuffer], { type: result.data.type })
+        const downloadUrl = URL.createObjectURL(blob)
+
         updateResult(taskId, {
           data: resultArrayBuffer,
           status: 'completed',
           progress: 100,
           stage: 'Complete!',
+          downloadUrl,
           fileInfo: {
             name: result.filename,
             size: result.data.size,
