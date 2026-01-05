@@ -16,10 +16,11 @@ export interface ProcessResult {
   inputMode: 'file' | 'message'
   data: ArrayBuffer
   text?: string
-  fileInfo?: FileInfo & { originalExtension?: string }
+  fileInfo?: FileInfo
   timestamp: number
   status: 'processing' | 'completed' | 'failed'
-  progress?: number
-  stage?: string
+  progress: number
+  stage: string
   error?: string
+  downloadUrl?: string
 }

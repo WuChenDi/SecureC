@@ -19,6 +19,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { SCResultDialog } from '@/components/SC'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
 import { DataTable } from '@/components/ui/table/data-table'
 import {
@@ -32,19 +33,29 @@ import { useProcessStore } from '@/store/useProcessStore'
 import type { ProcessResult } from '@/types'
 
 export function SCProcessingHistory() {
-  const { results, removeResult, clearResults } = useProcessStore(
-    useShallow((state) => ({
-      results: state.processResults,
-      removeResult: state.removeResult,
-      clearResults: state.clearResults,
-    })),
-  )
+  const { results, removeResult, removeResults, clearResults } =
+    useProcessStore(
+      useShallow((state) => ({
+        results: state.processResults,
+        removeResult: state.removeResult,
+        removeResults: state.removeResults,
+        clearResults: state.clearResults,
+      })),
+    )
 
   const [currentResult, setCurrentResult] = useState<ProcessResult | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
+
+  const selectedResults = useMemo(() => {
+    return results.filter((result) => rowSelection[result.id])
+  }, [results, rowSelection])
+
+  const selectedCount = selectedResults.length
 
   const handleResetAll = useCallback(() => {
     clearResults()
+    setRowSelection({})
     toast.success('All results cleared')
   }, [clearResults])
 
@@ -66,6 +77,31 @@ export function SCProcessingHistory() {
     toast.success('File downloaded successfully')
   }, [])
 
+  const handleBatchDownload = useCallback(() => {
+    const completedResults = selectedResults.filter(
+      (r) => r.status === 'completed',
+    )
+
+    if (completedResults.length === 0) {
+      toast.error('No completed results to download')
+      return
+    }
+
+    completedResults.forEach((result) => {
+      handleDownloadResult(result)
+    })
+
+    toast.success(`Downloaded ${completedResults.length} file(s)`)
+    setRowSelection({})
+  }, [selectedResults, handleDownloadResult])
+
+  const handleBatchDelete = useCallback(() => {
+    const ids = selectedResults.map((r) => r.id)
+    removeResults(ids)
+    setRowSelection({})
+    toast.success(`Removed ${ids.length} result(s)`)
+  }, [selectedResults, removeResults])
+
   const handleViewResult = useCallback((result: ProcessResult) => {
     if (result.status !== 'completed') {
       toast.error('Cannot view incomplete result')
@@ -85,6 +121,30 @@ export function SCProcessingHistory() {
 
   const columns = useMemo<ColumnDef<ProcessResult>[]>(
     () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        size: 50,
+        enableSorting: false,
+      },
       {
         id: 'name',
         header: 'Name',
@@ -128,7 +188,7 @@ export function SCProcessingHistory() {
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span
-                    className="font-medium truncate max-w-[200px]"
+                    className="font-medium truncate max-w-50"
                     title={result.fileInfo.name}
                   >
                     {result.fileInfo.name}
@@ -223,7 +283,7 @@ export function SCProcessingHistory() {
 
           if (status === 'processing') {
             return (
-              <div className="space-y-1 min-w-[160px]">
+              <div className="space-y-1 min-w-40">
                 <Progress value={progress || 0} className="h-1.5" />
                 <span className="text-xs text-muted-foreground">
                   {stage || 'Processing...'}
@@ -235,7 +295,7 @@ export function SCProcessingHistory() {
           if (status === 'failed' && error) {
             return (
               <span
-                className="text-xs text-red-500 block max-w-[160px] truncate"
+                className="text-xs text-red-500 block max-w-40 truncate"
                 title={error}
               >
                 {error}
@@ -331,6 +391,12 @@ export function SCProcessingHistory() {
     data: results,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      rowSelection,
+    },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.id,
     initialState: {
       pagination: {
         pageSize: 10,
@@ -345,11 +411,30 @@ export function SCProcessingHistory() {
   return (
     <div className="bg-card/50 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden p-6">
       <div className="flex flex-col space-y-4 h-100">
-        <Button variant="outline" onClick={handleResetAll} className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          Reset All
-        </Button>
-        <DataTable table={table} />
+        <DataTable table={table}>
+          <div className="flex items-center gap-2">
+            {selectedCount > 0 && (
+              <>
+                <Button variant="outline" onClick={handleBatchDownload}>
+                  <Download className="size-4" />
+                  Download
+                </Button>
+                <Button variant="destructive" onClick={handleBatchDelete}>
+                  <Trash2 className="size-4" />
+                  Delete
+                </Button>
+              </>
+            )}
+            <Button
+              variant="outline"
+              onClick={handleResetAll}
+              className="ml-auto"
+            >
+              <RefreshCw className="size-4" />
+              Reset All
+            </Button>
+          </div>
+        </DataTable>
       </div>
 
       <SCResultDialog
