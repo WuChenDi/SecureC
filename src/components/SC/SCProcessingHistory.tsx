@@ -12,7 +12,6 @@ import {
   RefreshCw,
   Trash2,
   Unlock,
-  Upload,
 } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -23,10 +22,13 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { DataTable } from '@/components/ui/table/data-table'
 import {
+  cn,
   downloadFile,
   formatFileSize,
+  getFileIcon,
   getFilenameWithoutExtension,
-} from '@/lib/utils'
+  getFileTypeLabel,
+} from '@/lib'
 import { useProcessStore } from '@/store/useProcessStore'
 import type { ProcessResult } from '@/types'
 
@@ -91,22 +93,61 @@ export function SCProcessingHistory() {
   const columns = useMemo<ColumnDef<ProcessResult>[]>(
     () => [
       {
-        accessorKey: 'inputMode',
-        header: 'Type',
-        cell: ({ getValue }) => {
-          const inputMode = getValue<'file' | 'message'>()
-          return (
-            <Badge variant="outline" className="gap-1">
-              {inputMode === 'file' ? (
-                <Upload className="size-3" />
-              ) : (
-                <FileText className="size-3" />
-              )}
-              {inputMode === 'file' ? 'File' : 'Text'}
-            </Badge>
-          )
+        id: 'name',
+        header: 'Name',
+        cell: ({ row }) => {
+          const result = row.original
+
+          if (result.inputMode === 'message') {
+            return (
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                  <FileText className="size-4 text-blue-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-medium">Text Message</span>
+                  <span className="text-xs text-muted-foreground">
+                    Plain Text
+                  </span>
+                </div>
+              </div>
+            )
+          }
+
+          if (result.fileInfo) {
+            const config = getFileIcon(
+              result.fileInfo.name,
+              result.fileInfo.type,
+            )
+            const label = getFileTypeLabel(result.fileInfo.name)
+            const Icon = config.icon
+
+            return (
+              <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    'p-2 rounded-lg',
+                    config.bgColor,
+                    config.darkBgColor,
+                  )}
+                >
+                  <Icon className={cn('size-4', config.color)} />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span
+                    className="font-medium truncate max-w-[200px]"
+                    title={result.fileInfo.name}
+                  >
+                    {result.fileInfo.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{label}</span>
+                </div>
+              </div>
+            )
+          }
+
+          return <span className="font-medium">Unknown</span>
         },
-        size: 100,
         enableSorting: false,
       },
       {
@@ -115,15 +156,26 @@ export function SCProcessingHistory() {
         header: 'Action',
         cell: ({ getValue }) => {
           const mode = getValue<'encrypt' | 'decrypt'>()
-          return mode === 'encrypt' ? (
-            <Badge className="bg-blue-500 gap-1">
-              <Lock className="size-3" />
-              Encrypted
-            </Badge>
-          ) : (
-            <Badge className="bg-green-500 gap-1">
-              <Unlock className="size-3" />
-              Decrypted
+
+          const config = {
+            encrypt: {
+              label: 'Encrypt',
+              icon: Lock,
+              className: 'bg-blue-500 hover:bg-blue-600',
+            },
+            decrypt: {
+              label: 'Decrypt',
+              icon: Unlock,
+              className: 'bg-green-500 hover:bg-green-600',
+            },
+          }
+
+          const { label, icon: Icon, className } = config[mode]
+
+          return (
+            <Badge className={cn('gap-1', className)}>
+              <Icon className="size-3" />
+              {label}
             </Badge>
           )
         },
@@ -131,22 +183,10 @@ export function SCProcessingHistory() {
         enableSorting: false,
       },
       {
-        id: 'name',
-        header: 'Name',
-        cell: ({ row }) => (
-          <span className="font-medium">
-            {row.original.inputMode === 'file' && row.original.fileInfo
-              ? row.original.fileInfo.name
-              : 'Text Message'}
-          </span>
-        ),
-        enableSorting: false,
-      },
-      {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
-          const { status, progress, stage, error } = row.original
+          const { status } = row.original
 
           if (status === 'processing') {
             return (

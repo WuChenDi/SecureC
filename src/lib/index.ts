@@ -1,3 +1,5 @@
 export * from './clipboard'
+export * from './data-table'
+export * from './fileIconHelper'
 export * from './genid'
 export * from './utils'
