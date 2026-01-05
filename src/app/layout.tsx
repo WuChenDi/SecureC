@@ -9,7 +9,6 @@ import '@/app/globals.css'
 import { Providers } from '@/components/providers'
 import Aurora from '@/components/reactbits/Aurora'
 import Particles from '@/components/reactbits/Particles'
-import SplashCursor from '@/components/reactbits/SplashCursor'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -43,7 +42,7 @@ const BackgroundEffects = () => (
         disableRotation={false}
       />
     </div>
-    <SplashCursor />
+    {/* <SplashCursor /> */}
   </>
 )
 

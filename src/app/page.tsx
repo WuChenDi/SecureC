@@ -311,171 +311,171 @@ export default function PasswordPage() {
   }
 
   const isEncrypt = activeTab === 'encrypt'
-  const borderColor = isEncrypt
-    ? 'border-blue-400 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-900/30'
-    : 'border-green-400 dark:border-green-500 bg-green-50/50 dark:bg-green-900/30'
-  const hoverColor = isEncrypt
-    ? 'hover:border-blue-400 dark:hover:border-blue-500'
-    : 'hover:border-green-400 dark:hover:border-green-500'
-  const iconColor = isEncrypt ? 'text-blue-500' : 'text-green-500'
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
         <SCHeader />
 
-        <div className="bg-card/50 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl mb-8 overflow-hidden">
-          <div className="p-6 md:p-8">
-            <Input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
-            />
+        <div className="bg-card/50 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl mb-8 overflow-hidden p-6">
+          <Input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
+          />
 
-            <Tabs value={activeTab} onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger
-                  value="encrypt"
-                  className="flex items-center gap-2"
-                >
-                  <Lock className="size-4" />
-                  Encrypt
-                </TabsTrigger>
-                <TabsTrigger
-                  value="decrypt"
-                  className="flex items-center gap-2"
-                >
-                  <Unlock className="size-4" />
-                  Decrypt
-                </TabsTrigger>
-              </TabsList>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="encrypt" className="flex items-center gap-2">
+                <Lock className="size-4" />
+                Encrypt
+              </TabsTrigger>
+              <TabsTrigger value="decrypt" className="flex items-center gap-2">
+                <Unlock className="size-4" />
+                Decrypt
+              </TabsTrigger>
+            </TabsList>
 
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Input Mode
-                  </Label>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={inputMode === 'file' ? 'default' : 'outline'}
-                      onClick={() => setInputMode('file')}
-                      className="flex-1 flex items-center justify-center gap-2"
-                    >
-                      <Upload className="size-4" />
-                      File
-                    </Button>
-                    <Button
-                      variant={inputMode === 'message' ? 'default' : 'outline'}
-                      onClick={() => setInputMode('message')}
-                      className="flex-1 flex items-center justify-center gap-2"
-                    >
-                      <FileText className="size-4" />
-                      Messages
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Password
-                  </Label>
-                  <PasswordInput
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    className="font-mono text-sm h-11"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  {inputMode === 'file' ? (
-                    <>
-                      <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        Select File
-                      </Label>
-                      <div
-                        className={cn(
-                          'relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer',
-                          fileInfo
-                            ? borderColor
-                            : `border-gray-300 dark:border-gray-600 ${hoverColor}`,
-                        )}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <div className="flex flex-col items-center justify-center p-8">
-                          <Upload
-                            className={cn(
-                              'w-12 h-12 mb-3',
-                              fileInfo ? iconColor : 'text-gray-400',
-                            )}
-                          />
-                          <span className="text-sm text-gray-600 dark:text-gray-400 text-center font-medium">
-                            {fileInfo
-                              ? `Selected: ${fileInfo.name}`
-                              : 'Click to select a file'}
-                          </span>
-                        </div>
-                      </div>
-                      {fileInfo && <FileInfoDisplay fileInfo={fileInfo} />}
-                    </>
-                  ) : (
-                    <>
-                      <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        Message
-                      </Label>
-                      <Textarea
-                        value={textInput}
-                        onChange={(e) => setTextInput(e.target.value)}
-                        placeholder={
-                          isEncrypt
-                            ? 'Enter the message to be encrypted'
-                            : 'Enter the message to be decrypted'
-                        }
-                        className="min-h-[100px] max-h-[300px] font-mono text-sm"
-                      />
-                    </>
-                  )}
-                </div>
-
-                <div className="flex">
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label>Input Mode</Label>
+                <div className="flex gap-2">
                   <Button
-                    variant="default"
-                    disabled={
-                      (inputMode === 'file' && !selectedFile) ||
-                      (inputMode === 'message' && !textInput.trim()) ||
-                      !password ||
-                      isProcessing
-                    }
-                    onClick={() => processInput(activeTab)}
-                    className={cn(
-                      'flex-1',
-                      isEncrypt
-                        ? 'bg-primary hover:bg-primary/90'
-                        : 'bg-green-600 hover:bg-green-700',
-                    )}
+                    variant={inputMode === 'file' ? 'default' : 'outline'}
+                    onClick={() => setInputMode('file')}
+                    className="flex-1 flex items-center justify-center gap-2"
                   >
-                    {isEncrypt ? (
-                      <Lock className="size-4" />
-                    ) : (
-                      <Unlock className="size-4" />
-                    )}
-                    {isEncrypt ? 'Encrypt' : 'Decrypt'}
+                    <Upload className="size-4" />
+                    File
+                  </Button>
+                  <Button
+                    variant={inputMode === 'message' ? 'default' : 'outline'}
+                    onClick={() => setInputMode('message')}
+                    className="flex-1 flex items-center justify-center gap-2"
+                  >
+                    <FileText className="size-4" />
+                    Messages
                   </Button>
                 </div>
               </div>
-            </Tabs>
 
-            <ProgressIndicator
-              isProcessing={isProcessing}
-              processingStage={processingStage}
-              processingProgress={processingProgress}
-            />
-          </div>
+              <div className="space-y-3">
+                <Label>Password</Label>
+                <PasswordInput
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                />
+              </div>
+
+              <div className="space-y-3">
+                {inputMode === 'file' ? (
+                  <>
+                    <Label>Select File</Label>
+                    <div
+                      className={cn(
+                        'group relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer',
+                        fileInfo
+                          ? isEncrypt
+                            ? 'border-blue-400 dark:border-blue-500 bg-blue-50/50 dark:bg-blue-900/30'
+                            : 'border-green-400 dark:border-green-500 bg-green-50/50 dark:bg-green-900/30'
+                          : cn(
+                              'border-gray-300 dark:border-gray-600',
+                              isEncrypt
+                                ? 'hover:border-blue-400 dark:hover:border-blue-500'
+                                : 'hover:border-green-400 dark:hover:border-green-500',
+                            ),
+                      )}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <div className="flex flex-col items-center justify-center space-y-3 p-8">
+                        <Upload
+                          className={cn(
+                            'size-12 transition-colors duration-300',
+                            fileInfo
+                              ? isEncrypt
+                                ? 'text-blue-500'
+                                : 'text-green-500'
+                              : isEncrypt
+                                ? 'text-gray-400 group-hover:text-blue-500'
+                                : 'text-gray-400 group-hover:text-green-500',
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            'text-sm text-center font-medium transition-colors duration-300',
+                            fileInfo
+                              ? isEncrypt
+                                ? 'text-blue-600'
+                                : 'text-green-600'
+                              : isEncrypt
+                                ? 'text-gray-500 group-hover:text-blue-600'
+                                : 'text-gray-500 group-hover:text-green-600',
+                          )}
+                        >
+                          {fileInfo
+                            ? `Selected: ${fileInfo.name}`
+                            : 'Click to select a file'}
+                        </span>
+                      </div>
+                    </div>
+                    {fileInfo && <FileInfoDisplay fileInfo={fileInfo} />}
+                  </>
+                ) : (
+                  <>
+                    <Label>Message</Label>
+                    <Textarea
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      placeholder={
+                        isEncrypt
+                          ? 'Enter the message to be encrypted'
+                          : 'Enter the message to be decrypted'
+                      }
+                      className="min-h-[148px] max-h-[300px] text-sm"
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="flex">
+                <Button
+                  variant="default"
+                  disabled={
+                    (inputMode === 'file' && !selectedFile) ||
+                    (inputMode === 'message' && !textInput.trim()) ||
+                    !password ||
+                    isProcessing
+                  }
+                  onClick={() => processInput(activeTab)}
+                  className={cn(
+                    'flex-1',
+                    isEncrypt
+                      ? 'bg-primary hover:bg-primary/90'
+                      : 'bg-green-600 hover:bg-green-700',
+                  )}
+                >
+                  {isEncrypt ? (
+                    <Lock className="size-4" />
+                  ) : (
+                    <Unlock className="size-4" />
+                  )}
+                  {isEncrypt ? 'Encrypt' : 'Decrypt'}
+                </Button>
+              </div>
+            </div>
+          </Tabs>
+
+          <ProgressIndicator
+            isProcessing={isProcessing}
+            processingStage={processingStage}
+            processingProgress={processingProgress}
+          />
         </div>
 
-        <FeaturesSection className="mb-8" />
         <SCProcessingHistory onViewResult={handleViewResult} />
+        <FeaturesSection />
       </div>
 
       <SCResultDialog
