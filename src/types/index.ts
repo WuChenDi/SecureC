@@ -17,7 +17,7 @@ export interface ProcessResult {
   data: ArrayBuffer
   text?: string
   fileInfo?: FileInfo & { originalExtension?: string }
-  timestamp: string | number
+  timestamp: number
   status: 'processing' | 'completed' | 'failed'
   progress?: number
   stage?: string
