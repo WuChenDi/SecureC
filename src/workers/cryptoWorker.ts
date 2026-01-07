@@ -1,8 +1,9 @@
 import { clampProgress, generateDownloadFilename } from '@/lib'
 import { parseStreamHeader, streamCrypto, textCrypto } from '@/lib/crypto'
+import { ModeEnum } from '@/types'
 
 interface WorkerInput {
-  mode: 'encrypt' | 'decrypt'
+  mode: keyof typeof ModeEnum
   file?: File
   filename?: string
   text?: string
@@ -27,7 +28,7 @@ self.onmessage = async (e: MessageEvent<WorkerInput>) => {
 
       self.postMessage({ progress: 10, stage: 'Preparing text processing...' })
 
-      if (mode === 'encrypt') {
+      if (mode === ModeEnum.ENCRYPT) {
         const result = await textCrypto.encrypt(text, password)
         const outputFilename = generateDownloadFilename(mode, true)
 
@@ -56,7 +57,7 @@ self.onmessage = async (e: MessageEvent<WorkerInput>) => {
       // File mode
       if (!file || !filename) throw new Error('File or filename not provided')
 
-      if (mode === 'encrypt') {
+      if (mode === ModeEnum.ENCRYPT) {
         self.postMessage({ progress: 10, stage: 'Preparing encryption...' })
 
         const result = await streamCrypto.encrypt.withPassword({

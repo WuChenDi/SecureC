@@ -1,6 +1,7 @@
 import type { ClassValue } from 'clsx'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { ModeEnum } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -30,7 +31,7 @@ export const clampProgress = (progress: number): number =>
 
 // Generate download filename
 export const generateDownloadFilename = (
-  mode: 'encrypt' | 'decrypt',
+  mode: keyof typeof ModeEnum,
   isTextMode: boolean,
   originalFilename?: string,
   originalExtension?: string,
@@ -38,17 +39,17 @@ export const generateDownloadFilename = (
   const timestamp = Date.now()
 
   if (isTextMode) {
-    return mode === 'encrypt'
+    return mode === ModeEnum.ENCRYPT
       ? `encrypted_text_${timestamp}.enc`
       : `text_${timestamp}.txt`
   }
 
-  if (mode === 'encrypt' && originalFilename) {
+  if (mode === ModeEnum.ENCRYPT && originalFilename) {
     const nameWithoutExt = getFilenameWithoutExtension(originalFilename)
     return `${nameWithoutExt}_${timestamp}.enc`
   }
 
-  if (mode === 'decrypt' && originalExtension) {
+  if (mode === ModeEnum.DECRYPT && originalExtension) {
     return `${timestamp}.${originalExtension}`
   }
 
