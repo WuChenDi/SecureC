@@ -3,7 +3,7 @@
 import { FileText, Lock, Unlock, Upload } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-
+import { useShallow } from 'zustand/react/shallow'
 import FeaturesSection from '@/components/FeaturesSection'
 import { FileInfoDisplay } from '@/components/FileInfoDisplay'
 import { SCHeader, SCProcessingHistory } from '@/components/SC'
@@ -19,6 +19,13 @@ import type { FileInfo, ProcessResult } from '@/types'
 import { InputModeEnum, ModeEnum, StatusEnum } from '@/types'
 
 export default function PasswordPage() {
+  const { addResult, updateResult } = useProcessStore(
+    useShallow((state) => ({
+      addResult: state.addResult,
+      updateResult: state.updateResult,
+    })),
+  )
+
   const [password, setPassword] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null)
@@ -29,9 +36,6 @@ export default function PasswordPage() {
   const [activeTab, setActiveTab] = useState<keyof typeof ModeEnum>(
     ModeEnum.ENCRYPT,
   )
-
-  const addResult = useProcessStore((state) => state.addResult)
-  const updateResult = useProcessStore((state) => state.updateResult)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const workerRef = useRef<Worker | null>(null)
