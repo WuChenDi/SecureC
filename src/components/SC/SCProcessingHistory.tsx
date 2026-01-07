@@ -209,15 +209,15 @@ export function SCProcessingHistory() {
         id: 'action',
         header: 'Action',
         cell: ({ getValue }) => {
-          const mode = getValue<'encrypt' | 'decrypt'>()
+          const mode = getValue<'ENCRYPT' | 'DECRYPT'>()
 
           const config = {
-            encrypt: {
+            ENCRYPT: {
               label: 'Encrypt',
               icon: Lock,
               className: 'bg-blue-500 hover:bg-blue-600',
             },
-            decrypt: {
+            DECRYPT: {
               label: 'Decrypt',
               icon: Unlock,
               className: 'bg-green-500 hover:bg-green-600',
