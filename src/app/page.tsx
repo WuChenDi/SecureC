@@ -19,6 +19,15 @@ import type { FileInfo, ProcessResult } from '@/types'
 import { InputModeEnum, ModeEnum, StatusEnum } from '@/types'
 
 export default function PasswordPage() {
+  const [password, setPassword] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [fileInfo, setFileInfo] = useState<FileInfo | null>(null)
+  const [textInput, setTextInput] = useState('')
+  const [inputMode, setInputMode] = useState<InputModeEnum>(InputModeEnum.FILE)
+  const [activeTab, setActiveTab] = useState<ModeEnum>(ModeEnum.ENCRYPT)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const workerRef = useRef<Worker | null>(null)
   const { addResult, updateResult } = useProcessStore(
     useShallow((state) => ({
       addResult: state.addResult,
@@ -26,29 +35,14 @@ export default function PasswordPage() {
     })),
   )
 
-  const [password, setPassword] = useState('')
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [fileInfo, setFileInfo] = useState<FileInfo | null>(null)
-  const [textInput, setTextInput] = useState('')
-  const [inputMode, setInputMode] = useState<keyof typeof InputModeEnum>(
-    InputModeEnum.FILE,
-  )
-  const [activeTab, setActiveTab] = useState<keyof typeof ModeEnum>(
-    ModeEnum.ENCRYPT,
-  )
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const workerRef = useRef<Worker | null>(null)
-
   useEffect(() => {
     workerRef.current = new Worker(
       new URL('../workers/cryptoWorker.ts', import.meta.url),
     )
-    return () => workerRef.current?.terminate()
-  }, [])
 
-  useEffect(() => {
     return () => {
+      workerRef.current?.terminate()
+
       const results = useProcessStore.getState().processResults
       results.forEach((result) => {
         if (result.downloadUrl) {
@@ -82,12 +76,12 @@ export default function PasswordPage() {
     }
   }
 
-  const handleTabChange = (value: keyof typeof ModeEnum) => {
+  const handleTabChange = (value: ModeEnum) => {
     setActiveTab(value)
     clearInput()
   }
 
-  const processInput = async (mode: keyof typeof ModeEnum) => {
+  const processInput = async (mode: ModeEnum) => {
     if (inputMode === InputModeEnum.FILE && !selectedFile) {
       toast.error('Please select a file first')
       return
@@ -255,9 +249,7 @@ export default function PasswordPage() {
 
           <Tabs
             value={activeTab}
-            onValueChange={(value) =>
-              handleTabChange(value as keyof typeof ModeEnum)
-            }
+            onValueChange={(value) => handleTabChange(value as ModeEnum)}
           >
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger

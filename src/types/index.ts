@@ -28,13 +28,13 @@ export enum StatusEnum {
 
 export interface ProcessResult {
   id: string
-  mode: keyof typeof ModeEnum
-  inputMode: keyof typeof InputModeEnum
+  mode: ModeEnum
+  inputMode: InputModeEnum
   data: ArrayBuffer
   text?: string
   fileInfo?: FileInfo
   timestamp: number
-  status: keyof typeof StatusEnum
+  status: StatusEnum
   progress: number
   stage: string
   error?: string

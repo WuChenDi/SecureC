@@ -34,6 +34,10 @@ import type { ProcessResult } from '@/types'
 import { InputModeEnum, ModeEnum, StatusEnum } from '@/types'
 
 export function SCProcessingHistory() {
+  const [currentResult, setCurrentResult] = useState<ProcessResult | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
+
   const { results, removeResult, removeResults, clearResults } =
     useProcessStore(
       useShallow((state) => ({
@@ -44,15 +48,9 @@ export function SCProcessingHistory() {
       })),
     )
 
-  const [currentResult, setCurrentResult] = useState<ProcessResult | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
-
   const selectedResults = useMemo(() => {
     return results.filter((result) => rowSelection[result.id])
   }, [results, rowSelection])
-
-  const selectedCount = selectedResults.length
 
   const handleResetAll = useCallback(() => {
     clearResults()
@@ -414,7 +412,7 @@ export function SCProcessingHistory() {
       <div className="flex flex-col space-y-4 h-100">
         <DataTable table={table}>
           <div className="flex items-center gap-2">
-            {selectedCount > 0 && (
+            {selectedResults.length > 0 && (
               <>
                 <Button variant="outline" onClick={handleBatchDownload}>
                   <Download className="size-4" />
