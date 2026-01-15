@@ -135,11 +135,15 @@ graph TD
 - **Client-Side Risks**: Ensure your browser is free from malware or extensions that could access sensitive data like passwords or files.
 - **No Server Storage**: Since all processing is client-side, no data is stored on servers, but users must manage their own backups of encrypted files.
 
-- https://pastebin.com/
+## Thanks
+
+The encryption algorithm is sourced from: https://github.com/nsiod/share
+
+<!-- - https://pastebin.com/
 - https://defuse.ca/pastebin.htm
 - https://cowtransfer.com/
 - https://www.transfernow.net/en
-- https://about.encl.io/
+- https://about.encl.io/ -->
 
 ## 📜 License
 
