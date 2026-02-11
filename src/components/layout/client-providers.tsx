@@ -1,14 +1,20 @@
 'use client'
 
 import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 import { ThemeProvider } from '@/components/layout/theme-provider'
 
 function ThemedBackground({ children }: { children: React.ReactNode }) {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <div className="min-h-screen w-full relative">
-      {theme === 'dark' ? (
+      {!mounted ? null : resolvedTheme === 'dark' ? (
         // <div
         //   className="absolute inset-0 z-[-1]"
         //   style={{
@@ -47,7 +53,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
-      enableSystem={false}
+      enableSystem
       disableTransitionOnChange
     >
       <ThemedBackground>{children}</ThemedBackground>
