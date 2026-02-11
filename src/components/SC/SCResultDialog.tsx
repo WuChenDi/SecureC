@@ -55,19 +55,17 @@ export function SCResultDialog({
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={() => result && onDownload(result)}
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
+                  <Download />
                 </Button>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={() => result?.text && copyToClipboard(result.text)}
                 >
-                  <Clipboard className="h-4 w-4 mr-2" />
-                  Copy
+                  <Clipboard />
                 </Button>
               </div>
             </div>

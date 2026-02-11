@@ -1,10 +1,11 @@
 import { ChevronDown, Info } from 'lucide-react'
 import { useState } from 'react'
-
+import { Card } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 
-export default function FeaturesSection({ className }: { className?: string }) {
-  const [showFeatures, setShowFeatures] = useState(false)
+export function SCFeaturesSection() {
+  const [showFeatures, setShowFeatures] = useState(true)
 
   const features = [
     'Encrypt and decrypt files or text securely with AES-GCM.',
@@ -14,23 +15,20 @@ export default function FeaturesSection({ className }: { className?: string }) {
   ]
 
   return (
-    <div
-      className={cn(
-        'rounded-lg bg-gray-900/40 border border-gray-800/50 backdrop-blur-sm',
-        className,
-      )}
-    >
+    <Card className="p-0 ">
       <div
         className="w-full flex items-center justify-between p-4 rounded-lg"
         onClick={() => setShowFeatures(!showFeatures)}
       >
         <div className="flex items-center gap-2.5">
-          <Info className="w-4.5 h-4.5 text-blue-400" />
-          <span className="text-base font-medium text-gray-200">Features</span>
+          <Info className="size-4 text-primary" />
+          <span className="text-base font-medium text-gray-800 dark:text-gray-200">
+            Features
+          </span>
         </div>
         <ChevronDown
           className={cn(
-            'w-4.5 h-4.5 text-gray-400 transition-transform duration-200',
+            'size-4 text-gray-500 dark:text-gray-400 transition-transform duration-200',
             showFeatures && 'rotate-180',
           )}
         />
@@ -41,18 +39,18 @@ export default function FeaturesSection({ className }: { className?: string }) {
           {features.map((feature, index) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders don't need stable keys
             <div key={index} className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0" />
-              <p className="text-sm text-gray-400 leading-relaxed">{feature}</p>
+              <div className="size-1.5 rounded-full bg-primary dark:bg-primary mt-2 shrink-0" />
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {feature}
+              </p>
             </div>
           ))}
-
-          <div className="pt-3 mt-3 border-t border-gray-800/50">
-            <p className="text-xs text-gray-500 text-center">
-              All encryption happens locally in your browser
-            </p>
-          </div>
+          <Separator />
+          <p className="text-muted-foreground text-xs text-center">
+            All encryption happens locally in your browser
+          </p>
         </div>
       )}
-    </div>
+    </Card>
   )
 }

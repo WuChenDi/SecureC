@@ -6,7 +6,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from 'sonner'
 
 import '@/app/globals.css'
-import { Providers } from '@/components/providers'
+import { ClientProviders, Header } from '@/components/layout'
 import Aurora from '@/components/reactbits/Aurora'
 import Particles from '@/components/reactbits/Particles'
 
@@ -250,11 +250,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <BackgroundEffects />
+        <ClientProviders>
+          {/* <BackgroundEffects /> */}
+          <Header />
           {children}
           <Toaster richColors position="top-right" duration={3000} />
-        </Providers>
+        </ClientProviders>
       </body>
       <GoogleAnalytics gaId="G-VECVREEZT1" />
     </html>
