@@ -15,7 +15,7 @@ export default function PasswordPage() {
     setPassword,
     fileInfo,
     textInput,
-    setTextInput,
+    handleTextInputChange,
     inputMode,
     setInputMode,
     activeTab,
@@ -54,7 +54,7 @@ export default function PasswordPage() {
             fileInputRef={fileInputRef}
             onFileSelect={handleFileSelect}
             textInput={textInput}
-            onTextInputChange={setTextInput}
+            onTextInputChange={handleTextInputChange}
             onProcess={processInput}
             isProcessDisabled={isProcessDisabled}
           />
