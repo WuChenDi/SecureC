@@ -1,7 +1,5 @@
 import { FileText, Lock, Unlock, Upload } from 'lucide-react'
 import type { RefObject } from 'react'
-import { SCEncryptDecryptTabs } from './SCEncryptDecryptTabs'
-import { SCFileInfoDisplay } from './SCFileInfoDisplay'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -18,6 +16,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib'
 import type { FileInfo } from '@/types'
 import { InputModeEnum, ModeEnum } from '@/types'
+import { SCEncryptDecryptTabs } from './SCEncryptDecryptTabs'
+import { SCFileInfoDisplay } from './SCFileInfoDisplay'
 
 interface SCInputPanelProps {
   activeTab: ModeEnum
@@ -69,10 +69,7 @@ export function SCInputPanel({
           className="hidden"
           onChange={(e) => onFileSelect(e.target.files?.[0] || null)}
         />
-        <SCEncryptDecryptTabs
-          activeTab={activeTab}
-          onTabChange={onTabChange}
-        />
+        <SCEncryptDecryptTabs activeTab={activeTab} onTabChange={onTabChange} />
 
         <div className="space-y-4">
           <Field>

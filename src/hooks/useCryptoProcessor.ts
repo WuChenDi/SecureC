@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
 import { downloadFile, genid } from '@/lib'
+import { detect } from '@/lib/crypto'
 import { useProcessStore } from '@/store/useProcessStore'
 import type { FileInfo, ProcessResult } from '@/types'
 import { InputModeEnum, ModeEnum, StatusEnum } from '@/types'
@@ -18,6 +19,7 @@ export function useCryptoProcessor() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const workerRef = useRef<Worker | null>(null)
+  const autoSwitchedRef = useRef(false)
   const { addResult, updateResult, processResults, removeResult } =
     useProcessStore(
       useShallow((state) => ({
@@ -47,6 +49,7 @@ export function useCryptoProcessor() {
 
   const handleFileSelect = useCallback((file: File | null) => {
     setSelectedFile(file)
+    autoSwitchedRef.current = false
     if (file) {
       setFileInfo({
         name: file.name,
@@ -55,6 +58,15 @@ export function useCryptoProcessor() {
           file.type ||
           (file.name.endsWith('.enc') ? 'application/encrypted' : 'Unknown'),
       })
+      detect(file)
+        .then(({ encryptionType }) => {
+          if (encryptionType !== 'unencrypted') {
+            setActiveTab(ModeEnum.DECRYPT)
+            autoSwitchedRef.current = true
+            toast.info('Encrypted file detected, switched to Decrypt mode')
+          }
+        })
+        .catch(() => {})
     } else {
       setFileInfo(null)
     }
@@ -64,8 +76,27 @@ export function useCryptoProcessor() {
     setSelectedFile(null)
     setFileInfo(null)
     setTextInput('')
+    autoSwitchedRef.current = false
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
+    }
+  }, [])
+
+  const handleTextInputChange = useCallback((value: string) => {
+    setTextInput(value)
+    if (value.length >= 3 && !autoSwitchedRef.current) {
+      detect(value)
+        .then(({ encryptionType }) => {
+          if (encryptionType !== 'unencrypted' && !autoSwitchedRef.current) {
+            setActiveTab(ModeEnum.DECRYPT)
+            autoSwitchedRef.current = true
+            toast.info('Encrypted text detected, switched to Decrypt mode')
+          }
+        })
+        .catch(() => {})
+    }
+    if (value.length < 3) {
+      autoSwitchedRef.current = false
     }
   }, [])
 
@@ -265,7 +296,7 @@ export function useCryptoProcessor() {
     selectedFile,
     fileInfo,
     textInput,
-    setTextInput,
+    handleTextInputChange,
     inputMode,
     setInputMode,
     activeTab,
